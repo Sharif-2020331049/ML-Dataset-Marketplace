@@ -1,0 +1,89 @@
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarHeader,
+} from '@/components/ui/sidebar';
+import { Badge } from '@/components/ui/badge';
+import { LayoutDashboard, FileText, Database, Users } from 'lucide-react';
+
+const menuItems = [
+  {
+    id: 'dashboard',
+    title: 'Dashboard',
+    icon: LayoutDashboard,
+  },
+  {
+    id: 'pending',
+    title: 'Pending Datasets',
+    icon: FileText,
+    badge: 12,
+  },
+  {
+    id: 'approved',
+    title: 'Approved Datasets',
+    icon: Database,
+  },
+  {
+    id: 'rejected',
+    title: 'Rejected Datasets',
+    icon: FileText,
+  },
+  {
+    id: 'users',
+    title: 'User Management',
+    icon: Users,
+  },
+];
+
+export function AppSidebar({ activeTab, onTabChange }) {
+  return (
+    <Sidebar className="border-r bg-white w-72">
+      <SidebarHeader className="p-6 border-b">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">OD</span>
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">OpenDataX</h2>
+            <p className="text-sm text-gray-500">Admin Panel</p>
+          </div>
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent className="p-4">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-2">
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    onClick={() => onTabChange(item.id)}
+                    isActive={activeTab === item.id}
+                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      activeTab === item.id
+                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span className="flex-1 text-left">{item.title}</span>
+                    {item.badge && (
+                      <Badge variant="secondary" className="ml-auto bg-orange-100 text-orange-700 text-xs">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+}

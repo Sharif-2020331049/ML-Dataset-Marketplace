@@ -7,8 +7,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-} from '@/components/ui/sidebar';
-import { Badge } from '@/components/ui/badge';
+} from './ui/sidebar.jsx';
+import { Badge } from './ui/badge.jsx';
 import { LayoutDashboard, FileText, Database, Users } from 'lucide-react';
 
 const menuItems = [
@@ -40,16 +40,16 @@ const menuItems = [
   },
 ];
 
-export function AppSidebar({ activeTab, onTabChange }) {
+const AppSidebar = ({ activeTab, onTabChange }) => {
   return (
-    <Sidebar className="border-r bg-white w-72">
+    <Sidebar className="border-r bg-white">
       <SidebarHeader className="p-6 border-b">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">OD</span>
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <Database className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">OpenDataX</h2>
+            <h2 className="text-lg font-semibold text-gray-900">OpenDataX</h2>
             <p className="text-sm text-gray-500">Admin Panel</p>
           </div>
         </div>
@@ -64,7 +64,7 @@ export function AppSidebar({ activeTab, onTabChange }) {
                   <SidebarMenuButton
                     onClick={() => onTabChange(item.id)}
                     isActive={activeTab === item.id}
-                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       activeTab === item.id
                         ? 'bg-blue-50 text-blue-700 border border-blue-200'
                         : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
@@ -86,4 +86,6 @@ export function AppSidebar({ activeTab, onTabChange }) {
       </SidebarContent>
     </Sidebar>
   );
-}
+};
+
+export {AppSidebar} ;

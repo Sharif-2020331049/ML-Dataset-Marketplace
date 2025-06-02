@@ -1,16 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import { Toaster } from "@/components/ui/toaster";
+// import { Toaster as Sonner } from "@/components/ui/sonner";
+// import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Index from "./pages/Index.jsx";
+import SignIn from "./pages/SignIn.jsx";
+import UserDetails from "./pages/UserDetails.jsx";
+import NotFound from "./pages/NotFound";
 
-function App() {
+const queryClient = new QueryClient();
 
+const ProtectedRoute = ({ children }) => {
+  const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+  return isLoggedIn ? children : <Navigate to="/signin" replace />;
+};
 
-  return (
-    <>
-        
-    </>
-  )
-}
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    {/* <TooltipProvider> */}
+      {/* <Toaster /> */}
+      {/* <Sonner /> */}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/signin" element={<SignIn />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user/:userId"
+            element={
+              <ProtectedRoute>
+                <UserDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    {/* </TooltipProvider> */}
+  </QueryClientProvider>
+);
 
-export default App
+export default App;

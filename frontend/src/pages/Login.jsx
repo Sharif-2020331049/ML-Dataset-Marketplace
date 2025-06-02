@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '../components/ui/Button.jsx';
+import axios from '../api/axios.js';
+import { toast } from 'react-toastify';
+import { useContext } from 'react';
+import { DataContext } from '../context/DataContext.jsx';
 
 const Login = () => {
+  const {token, setToken, navigate} = useContext(DataContext)
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -19,11 +24,34 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Login submitted:', formData);
     // Handle login logic here
+    try {
+      const response = await axios.post('/user/login', formData)
+      console.log(response.data);
+       if (response.data.success) {
+              setToken(response.data.token)
+              console.log(token);
+              
+              localStorage.setItem("token", response.data.token)
+              toast.success("User Logged In successfully!")
+              
+            } else {
+              toast.error(response.data.message)
+            }
+    } catch (err) {
+            console.log("Login Failed")
+            toast.error(err.message)
+    }
   };
+
+  useEffect(()=>{
+     if(token){
+      navigate('/')
+     }
+  }, [token])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">

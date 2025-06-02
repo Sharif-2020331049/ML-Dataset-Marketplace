@@ -12,6 +12,8 @@ import UploadDataset from "./pages/UploadDataset.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Contact from "./pages/Contact.jsx";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
 // import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,7 +23,8 @@ const App = () => (
     {/* <TooltipProvider>
       <Toaster />
       <Sonner /> */}
-      <BrowserRouter>
+      <ToastContainer />
+      
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">
@@ -39,7 +42,7 @@ const App = () => (
           </main>
           <Footer />
         </div>
-      </BrowserRouter>
+      
     {/* </TooltipProvider> */}
   </QueryClientProvider>
 );

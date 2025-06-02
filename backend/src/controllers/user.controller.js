@@ -28,23 +28,27 @@ const generateAccessAndRefreshToken = async (userId)=>{
 const registerUser = asyncHandler( async (req, res)=>{
   
     try {
-        const { name, email, password } = req.body
+        const { firstName, lastName, email, password } = req.body
         const exist = await User.findOne({email})
 
         if(exist){
-            throw new ApiError(401, 'User already exists')
+            // throw new ApiError(401, 'User already exists')
+            return res.json({success: false, message: "User already exists"})
         }
 
         if(!validator.isEmail(email)){
-            throw new ApiError(401, 'Please enter a valid email') 
+            // throw new ApiError(401, 'Please enter a valid email')
+            return res.json({success: false, message: "Please enter a valid email"})
         }
 
-        if (password.length < 8) {
-            throw new ApiError(401, 'Please enter a strong password') 
+        if (password.length < 4) {
+            // throw new ApiError(401, 'Please enter a strong password') 
+            return res.json({success: false, message: "Please enter a strong password"})
           }
 
         const user = await User.create({
-            name,
+            firstName,
+            lastName,
             email,
             password
         })
@@ -53,19 +57,30 @@ const registerUser = asyncHandler( async (req, res)=>{
         "-password -refreshToken"
        )
 
+       console.log(createdUser);
+       
+       const {accessToken, refreshToken }= await generateAccessAndRefreshToken(createdUser._id)
+
+ 
+       console.log(accessToken);
+       
        if(!createdUser) {
-        throw new ApiError(500, "Something went wrong while regitering the user")
+        // throw new ApiError(500, "Something went wrong while regitering the user")
+        return res.json({success: false, message: "Something went wrong while regitering the user"})
       }
 
-      return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered successfully!")
-      )
-        
+      // return res.status(201).json(
+      //   new ApiResponse(200, createdUser, "User registered successfully!")
+      // )
+
+        res.json({success:true, token: accessToken, message: "User registered successfully!"})
+
     } catch (error) {
 
         console.log(error);
+         res.json({success:false, message: error.message })
         
-        throw new ApiError(500, 'Something happens while registering user')
+        // throw new ApiError(500, 'Something happens while registering user')
         
     }
 })
@@ -78,15 +93,8 @@ const loginUser = asyncHandler( async (req, res)=>{
         if(!email && !password){
             throw new ApiError(400, 'username or email is required!')
           }
-
-        
-          
-
+  
       const user =  await User.findOne({email})
-
-      
-      
- 
 
       if(!user){
         throw new ApiError(404, "User doesn't exist")
@@ -95,7 +103,8 @@ const loginUser = asyncHandler( async (req, res)=>{
       const isPasswordMatch = await user.isPasswordCorrect(password)
 
       if(!isPasswordMatch){
-        throw new ApiError(401, "Invalid user credentials")
+        // throw new ApiError(401, "Invalid user credentials")
+        return res.json({success: false, message: "Invalid user credentials"})
       }
 
       const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
@@ -113,20 +122,22 @@ const loginUser = asyncHandler( async (req, res)=>{
      .cookie("accessToken", accessToken, options)
      .cookie("refreshToken", refreshToken, options)
      .json(
-       new ApiResponse(
-         200, 
-         {
-           user: loggedInUser, accessToken, 
-                  refreshToken
-         },
-         "User logged In Successfully"
-       )
+      //  new ApiResponse(
+      //    200, 
+      //    {
+      //      user: loggedInUser, accessToken, 
+      //             refreshToken
+      //    },
+      //    "User logged In Successfully"
+      //  )
+       {success:true, token: accessToken, message: "User LoggedIn successfully!"}
      )
 
      
     } catch (error) {
       console.log(error);
-      throw new ApiError(500, "Problem while login user")  
+      
+      // throw new ApiError(500, "Problem while login user")  
         
     }
 

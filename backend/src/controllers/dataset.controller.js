@@ -1,4 +1,5 @@
 import { Dataset } from "../models/dataset.model.js";
+import { Purchase } from "../models/purchase.model.js";
 
 const uploadDataset = async (req, res) => {
     try {
@@ -53,9 +54,6 @@ const uploadDataset = async (req, res) => {
     }
 };
 
-
-
-
 const accessAllDataset = async (req, res) => {
     try {
         const datasets = await Dataset.find().populate("uploadedBy", "name email");
@@ -104,10 +102,31 @@ const updateDatasetById = async (req, res) => {
     
 };
 
+const downloadDataset = async (req, res) => {
+  const userId = req.user._id;
+  const datasetId = req.params.id;
+
+  const purchase = await Purchase.findOne({
+    userId,
+    datasetId,
+  });
+
+  if (!purchase) {
+    return res.status(403).json({ success: false, message: "You must purchase this dataset first." });
+  }
+
+  const dataset = await Dataset.findById(datasetId);
+  res.status(200).json({
+    success: true,
+    originalFiles: dataset.originalFiles, // Direct download URLs
+  });
+};
+
 export {
     uploadDataset,
     accessAllDataset,
     deleteDatasetByID,
     updateDatasetById,
     accessDatasetByID,
+    downloadDataset
 };

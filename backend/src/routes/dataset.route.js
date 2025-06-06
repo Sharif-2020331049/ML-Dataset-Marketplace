@@ -1,8 +1,9 @@
 import express from 'express'
-import { accessAllDataset, accessDatasetByID, deleteDatasetByID, updateDatasetById, uploadDataset } from '../controllers/dataset.controller.js'
+import { accessAllDataset, accessDatasetByID, deleteDatasetByID, downloadDataset, updateDatasetById, uploadDataset } from '../controllers/dataset.controller.js'
 import { cloudinary, storage } from '../config/cloudinary.js'
 import multer from 'multer'
 import { handleUploadErrors, upload } from '../middlewares/multer.js'
+import { jwtVerify } from '../middlewares/auth.middleware.js'
 
 const datasetRouter = express.Router()
 // const upload = multer({ storage })
@@ -25,5 +26,9 @@ datasetRouter.get('/access/:id',accessDatasetByID )
 //     { name: 'originalFiles', maxCount: 5 },
 //     { name: 'samplePreview', maxCount: 1 }
 // ]),
+
+
+// For download
+datasetRouter.get('/download/:id', jwtVerify, downloadDataset);
 
 export default datasetRouter

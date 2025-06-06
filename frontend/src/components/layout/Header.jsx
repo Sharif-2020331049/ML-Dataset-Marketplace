@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, Menu, X } from 'lucide-react';
 import { Button } from '../ui/Button.jsx';
+import { DataContext } from '../../context/DataContext.jsx';
 
 const Header = () => {
+  const { token, setToken } = useContext(DataContext)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -93,18 +95,37 @@ const Header = () => {
               >
                 Contact
               </Link>
-              <div className="pt-4 pb-2 space-y-2">
-                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
-                    Sign Up
-                  </Button>
-                </Link>
+
+              {/* Auth Buttons / User Dropdown */}
+              <div className="hidden md:flex items-center space-x-4 relative">
+                {token ? (
+                  <div className="relative group">
+                    <Button className="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                      <User className="w-5 h-5" />
+                      <span>Account</span>
+                    </Button>
+                    <div className="hidden group-hover:flex flex-col gap-2 absolute right-0 mt-2 w-40 py-3 px-5 bg-white text-gray-700 rounded shadow-lg z-50">
+                      <Link to="/profile" className="hover:text-black">My Profile</Link>
+                      <button onClick={() => navigate('/dashboard')} className="text-left hover:text-black">Dashboard</button>
+                      <button onClick={logout} className="text-left hover:text-black">Logout</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Link to="/login">
+                      <Button variant="outline">Login</Button>
+                    </Link>
+                    <Link to="/register">
+                      <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
+
+
+
             </div>
           </div>
         )}

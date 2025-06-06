@@ -149,7 +149,7 @@ const UploadDataset = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price (USD) *
+                      Price (Taka) *
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
@@ -160,19 +160,19 @@ const UploadDataset = () => {
                         onChange={handleInputChange}
                         placeholder="0"
                         min="0"
-                        step="0.01"
+                        step="1"
                         className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
                       />
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
-                      Set to $0 for free datasets
+                      Set to ৳0 for free datasets
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* File Upload */}
+              {/* ********************** File Upload****************** */}
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
                   <Upload className="w-6 h-6 mr-2" />
@@ -181,35 +181,37 @@ const UploadDataset = () => {
 
                 <div className="space-y-6">
                   {/* Main Dataset Files */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Dataset Files *
-                    </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-                      <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <div className="text-lg font-medium text-gray-900 mb-2">
-                        Drop your dataset files here
-                      </div>
-                      <div className="text-gray-600 mb-4">
-                        or click to browse your computer
-                      </div>
-                      <input
-                        type="file"
-                        multiple
-                        onChange={(e) => setFiles(e.target.files)}
-                        className="hidden"
-                        id="dataset-files"
-                      />
-                      <label htmlFor="dataset-files">
-                        <Button type="button" variant="outline" className="cursor-pointer">
-                          Select Files
-                        </Button>
-                      </label>
-                      <p className="text-sm text-gray-500 mt-4">
-                        Supported formats: ZIP, TAR, CSV, JSON, and more. Max size: 10GB
-                      </p>
-                    </div>
-                  </div>
+                {/* Dataset Files */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Dataset Files *
+  </label>
+  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+    <div className="text-lg font-medium text-gray-900 mb-2">
+      Drop your dataset files here
+    </div>
+    <div className="text-gray-600 mb-4">or click to browse your computer</div>
+
+    <input
+      type="file"
+      multiple
+      onChange={(e) => setFiles(e.target.files)}
+      className="hidden"
+      id="dataset-files"
+    />
+    
+    <label htmlFor="dataset-files" className="inline-block cursor-pointer">
+      <Button type="button" variant="outline">
+        Select Files
+      </Button>
+    </label>
+
+    <p className="text-sm text-gray-500 mt-4">
+      Supported formats: ZIP, TAR, CSV, JSON, and more. Max size: 10GB
+    </p>
+  </div>
+</div>
 
                   {/* Preview/Sample Files */}
                   <div>
@@ -229,9 +231,9 @@ const UploadDataset = () => {
                         id="preview-files"
                       />
                       <label htmlFor="preview-files">
-                        <Button type="button" variant="outline" size="sm" className="cursor-pointer">
+                        {/* <Button type="button" variant="outline" size="sm" className="cursor-pointer"> */}
                           Select Samples
-                        </Button>
+                        {/* </Button> */}
                       </label>
                       <p className="text-sm text-gray-500 mt-2">
                         Help buyers understand your dataset with sample files

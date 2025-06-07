@@ -12,6 +12,8 @@ import UploadDataset from "./pages/UploadDataset.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Contact from "./pages/Contact.jsx";
+import Payment from "./pages/Payment.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 // import NotFound from "./pages/NotFound";
@@ -33,6 +35,8 @@ const App = () => (
               <Route path="/browse" element={<BrowseDatasets />} />
               <Route path="/dataset/:id" element={<DatasetDetails />} />
               <Route path="/upload" element={<UploadDataset />} />
+                <Route path="/dataset/:id/payment" element={<Payment />} />
+                  <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/contact" element={<Contact />} />

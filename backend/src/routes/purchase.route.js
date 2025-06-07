@@ -9,4 +9,4 @@ purchaseRouter.post('/confirm',jwtVerify, confirmPayment)
 purchaseRouter.get('/status/:id', jwtVerify, checkIfPurchased);
 
 
-export default purchaseRouter.
+export default purchaseRouter;

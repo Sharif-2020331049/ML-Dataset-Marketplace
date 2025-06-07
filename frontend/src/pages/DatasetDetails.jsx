@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Download, Eye, User, Calendar, FileText, Tag, Star, Shield } from 'lucide-react';
 import { Button } from '../components/ui/Button.jsx';
 
 const DatasetDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
   const dataset = {
     id: '1',
     title: 'Large-Scale Image Classification Dataset',
-    description: 'A comprehensive collection of over 100,000 high-resolution labeled images across 1000+ categories...',
-    fullDescription: 'This dataset represents one of the most comprehensive image classification collections available today...\n\n...',
+    description: 'A comprehensive collection of over 100,000 high-resolution labeled images across 1000+ categories specifically designed for computer vision tasks. This dataset includes diverse real-world scenarios and has been carefully curated to ensure quality and accuracy.',
+    fullDescription: 'This dataset represents one of the most comprehensive image classification collections available today. It contains over 100,000 high-resolution images (minimum 1024x1024 pixels) across more than 1,000 distinct categories. Each image has been manually verified and labeled by expert annotators, ensuring high accuracy for training machine learning models.\n\nThe dataset covers a wide range of categories including animals, vehicles, household objects, food items, landscapes, and more. Images were collected from diverse sources and environments to ensure model robustness and generalization capabilities.\n\nAll images are provided in JPEG format with consistent quality standards. Metadata includes detailed annotations, bounding boxes for object detection tasks, and semantic segmentation masks for advanced computer vision applications.',
     category: 'image',
     price: 299,
     originalPrice: 399,
@@ -43,14 +44,14 @@ const DatasetDetails = () => {
         user: 'Dr. Sarah Chen',
         rating: 5,
         date: '2024-01-20',
-        comment: 'Excellent dataset quality...',
+        comment: 'Excellent dataset quality. The annotations are very accurate and the variety of images is impressive.',
       },
       {
         id: 2,
         user: 'Marcus Rodriguez',
         rating: 4,
         date: '2024-01-18',
-        comment: 'Great for training CNNs...',
+        comment: 'Great for training CNNs. Would love to see more diversity in some categories.',
       },
     ],
   };
@@ -70,11 +71,17 @@ const DatasetDetails = () => {
     }
   };
 
+  const handlePurchaseClick = () => {
+    navigate(`/dataset/${id}/payment`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
           <div className="lg:col-span-2">
+            {/* Header */}
             <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(dataset.category)}`}>
@@ -92,12 +99,10 @@ const DatasetDetails = () => {
                 </div>
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {dataset.title}
-              </h1>
-
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{dataset.title}</h1>
               <p className="text-lg text-gray-600 mb-6">{dataset.description}</p>
 
+              {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-6">
                 {dataset.tags.map((tag, index) => (
                   <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700">
@@ -107,6 +112,7 @@ const DatasetDetails = () => {
                 ))}
               </div>
 
+              {/* Tabs */}
               <div className="border-b border-gray-200">
                 <nav className="flex space-x-8">
                   {['overview', 'samples', 'reviews'].map((tab) => (
@@ -126,6 +132,7 @@ const DatasetDetails = () => {
               </div>
             </div>
 
+            {/* Tab Content */}
             <div className="bg-white rounded-xl border border-gray-200 p-8">
               {activeTab === 'overview' && (
                 <div>
@@ -138,14 +145,50 @@ const DatasetDetails = () => {
 
                   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <InfoItem icon={<FileText />} label="File Count" value={`${dataset.fileCount.toLocaleString()} files`} />
-                      <InfoItem icon={<Download />} label="File Size" value={dataset.fileSize} />
-                      <InfoItem icon={<Calendar />} label="Upload Date" value={new Date(dataset.uploadDate).toLocaleDateString()} />
+                      <div className="flex items-center">
+                        <FileText className="w-5 h-5 text-gray-400 mr-3" />
+                        <div>
+                          <div className="text-sm text-gray-500">File Count</div>
+                          <div className="font-medium">{dataset.fileCount.toLocaleString()} files</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <Download className="w-5 h-5 text-gray-400 mr-3" />
+                        <div>
+                          <div className="text-sm text-gray-500">File Size</div>
+                          <div className="font-medium">{dataset.fileSize}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-5 h-5 text-gray-400 mr-3" />
+                        <div>
+                          <div className="text-sm text-gray-500">Upload Date</div>
+                          <div className="font-medium">{new Date(dataset.uploadDate).toLocaleDateString()}</div>
+                        </div>
+                      </div>
                     </div>
                     <div className="space-y-4">
-                      <InfoItem icon={<Shield />} label="License" value={dataset.license} />
-                      <InfoItem icon={<FileText />} label="Format" value={dataset.format} />
-                      <InfoItem icon={<Calendar />} label="Last Updated" value={new Date(dataset.lastUpdated).toLocaleDateString()} />
+                      <div className="flex items-center">
+                        <Shield className="w-5 h-5 text-gray-400 mr-3" />
+                        <div>
+                          <div className="text-sm text-gray-500">License</div>
+                          <div className="font-medium">{dataset.license}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <FileText className="w-5 h-5 text-gray-400 mr-3" />
+                        <div>
+                          <div className="text-sm text-gray-500">Format</div>
+                          <div className="font-medium">{dataset.format}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-5 h-5 text-gray-400 mr-3" />
+                        <div>
+                          <div className="text-sm text-gray-500">Last Updated</div>
+                          <div className="font-medium">{new Date(dataset.lastUpdated).toLocaleDateString()}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -154,7 +197,9 @@ const DatasetDetails = () => {
               {activeTab === 'samples' && (
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">Sample Data</h3>
-                  <p className="text-gray-600 mb-6">Preview some examples from this dataset.</p>
+                  <p className="text-gray-600 mb-6">
+                    Preview some examples from this dataset to understand its content and quality.
+                  </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {dataset.samples.map((sample, index) => (
                       <div key={index} className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
@@ -173,7 +218,9 @@ const DatasetDetails = () => {
                       <div key={review.id} className="border-b border-gray-200 pb-6 last:border-b-0">
                         <div className="flex items-center justify-between mb-2">
                           <div className="font-medium text-gray-900">{review.user}</div>
-                          <div className="text-sm text-gray-500">{new Date(review.date).toLocaleDateString()}</div>
+                          <div className="text-sm text-gray-500">
+                            {new Date(review.date).toLocaleDateString()}
+                          </div>
                         </div>
                         <div className="flex items-center mb-2">
                           {[...Array(5)].map((_, i) => (
@@ -196,6 +243,7 @@ const DatasetDetails = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Purchase Card */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <div className="text-center mb-6">
                 <div className="text-3xl font-bold text-gray-900">${dataset.price}</div>
@@ -203,10 +251,19 @@ const DatasetDetails = () => {
                   <div className="text-lg text-gray-500 line-through">${dataset.originalPrice}</div>
                 )}
               </div>
-              <Button className="w-full mb-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">Purchase Dataset</Button>
-              <Button variant="outline" className="w-full">Add to Wishlist</Button>
+              <Button
+                size="lg"
+                className="w-full mb-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                onClick={handlePurchaseClick}
+              >
+                Purchase Dataset
+              </Button>
+              <Button size="lg" variant="outline" className="w-full">
+                Add to Wishlist
+              </Button>
             </div>
 
+            {/* Seller Info */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Seller Information</h3>
               <div className="flex items-center mb-4">
@@ -220,16 +277,31 @@ const DatasetDetails = () => {
                 </div>
               </div>
               <div className="text-sm text-gray-600 mb-4">{dataset.seller.datasets} datasets published</div>
-              <Button variant="outline" className="w-full">View Profile</Button>
+              <Button variant="outline" className="w-full">
+                View Profile
+              </Button>
             </div>
 
+            {/* Quick Stats */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Dataset Stats</h3>
               <div className="space-y-3">
-                <Stat label="Downloads" value={dataset.downloads} />
-                <Stat label="Views" value={dataset.views} />
-                <Stat label="File Size" value={dataset.fileSize} />
-                <Stat label="Files" value={dataset.fileCount.toLocaleString()} />
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Downloads</span>
+                  <span className="font-medium">{dataset.downloads}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Views</span>
+                  <span className="font-medium">{dataset.views}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">File Size</span>
+                  <span className="font-medium">{dataset.fileSize}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Files</span>
+                  <span className="font-medium">{dataset.fileCount.toLocaleString()}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -238,22 +310,5 @@ const DatasetDetails = () => {
     </div>
   );
 };
-
-const InfoItem = ({ icon, label, value }) => (
-  <div className="flex items-center">
-    <div className="text-gray-400 mr-3">{icon}</div>
-    <div>
-      <div className="text-sm text-gray-500">{label}</div>
-      <div className="font-medium">{value}</div>
-    </div>
-  </div>
-);
-
-const Stat = ({ label, value }) => (
-  <div className="flex justify-between">
-    <span className="text-gray-600">{label}</span>
-    <span className="font-medium">{value}</span>
-  </div>
-);
 
 export default DatasetDetails;

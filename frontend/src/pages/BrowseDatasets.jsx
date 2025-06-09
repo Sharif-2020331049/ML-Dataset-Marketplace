@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Filter, Grid, List } from 'lucide-react';
 import { Button } from '../components/ui/Button.jsx';
 import DatasetCard from '../components/ui/DatasetCard.jsx';
+import axios from '../api/axios.js';
 
 const BrowseDatasets = () => {
   const [viewMode, setViewMode] = useState('grid');
@@ -10,74 +11,22 @@ const BrowseDatasets = () => {
   const [priceRange, setPriceRange] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
 
-  const datasets = [
-    {
-      id: '1',
-      title: 'Large-Scale Image Classification Dataset',
-      description: 'A comprehensive collection of labeled images across 1000+ categories for computer vision tasks.',
-      category: 'image',
-      price: 299,
-      thumbnail: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop',
-      seller: 'AI Research Lab',
-      downloads: 1234,
-      views: 5678,
-    },
-    {
-      id: '2',
-      title: 'Conversational Speech Dataset',
-      description: 'High-quality recorded conversations in multiple languages for speech recognition training.',
-      category: 'audio',
-      price: 199,
-      thumbnail: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
-      seller: 'AudioTech Corp',
-      downloads: 567,
-      views: 2341,
-    },
-    {
-      id: '3',
-      title: 'Sentiment Analysis Text Corpus',
-      description: 'Million+ labeled text samples for sentiment analysis and opinion mining applications.',
-      category: 'text',
-      price: 149,
-      thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=300&fit=crop',
-      seller: 'TextMining Inc',
-      downloads: 891,
-      views: 3456,
-    },
-    {
-      id: '4',
-      title: 'Action Recognition Video Dataset',
-      description: 'Curated video clips showing various human actions for activity recognition models.',
-      category: 'video',
-      price: 399,
-      thumbnail: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop',
-      seller: 'VisionLab',
-      downloads: 234,
-      views: 1567,
-    },
-    {
-      id: '5',
-      title: 'Medical Image Segmentation Set',
-      description: 'Annotated medical images for segmentation tasks in healthcare AI applications.',
-      category: 'image',
-      price: 549,
-      thumbnail: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=300&fit=crop',
-      seller: 'MedAI Solutions',
-      downloads: 445,
-      views: 2890,
-    },
-    {
-      id: '6',
-      title: 'Music Genre Classification Audio',
-      description: 'Diverse collection of music tracks labeled by genre for audio classification models.',
-      category: 'audio',
-      price: 179,
-      thumbnail: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop',
-      seller: 'SoundData Co',
-      downloads: 678,
-      views: 3234,
-    },
-  ];
+  const [datasets, setDatasets] = useState([])
+
+  useEffect(() => {
+    fetchDatasets();
+  }, []);
+
+  const fetchDatasets = async () => {
+    try {
+      const response = await axios.get('/dataset/access'); // Adjust path if needed
+      if (response.data.success) {
+        setDatasets(response.data.datasets);
+      }
+    } catch (err) {
+      console.error('Error fetching datasets:', err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -147,9 +96,9 @@ const BrowseDatasets = () => {
                 >
                   <option value="all">All Prices</option>
                   <option value="free">Free</option>
-                  <option value="0-100">$0 - $100</option>
-                  <option value="100-300">$100 - $300</option>
-                  <option value="300+">$300+</option>
+                  <option value="0-100">৳0 - ৳100</option>
+                  <option value="100-300">৳100 - ৳300</option>
+                  <option value="300+">৳300+</option>
                 </select>
               </div>
 
@@ -196,13 +145,23 @@ const BrowseDatasets = () => {
               </div>
             </div>
 
-            <div className={`grid gap-6 ${
-              viewMode === 'grid' 
-                ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
-                : 'grid-cols-1'
-            }`}>
+            <div className={`grid gap-6 ৳{viewMode === 'grid'
+              ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+              : 'grid-cols-1'
+              }`}>
               {datasets.map((dataset) => (
-                <DatasetCard key={dataset.id} {...dataset} />
+                <DatasetCard
+                  key={dataset._id}
+                  title={dataset.datasetTitle}
+                  description={dataset.description}
+                  price={dataset.price}
+                  thumbnail={dataset.thumbnail?.url}
+                  seller={dataset.uploadedBy?.email}
+                  category={dataset.category}
+                  downloads={dataset.downloads || 0} // fallback if not in response
+                  views={dataset.views || 0}
+                />
+
               ))}
             </div>
 

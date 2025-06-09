@@ -10,12 +10,15 @@ const datasetRouter = express.Router()
 
 
 
-datasetRouter.post('/upload',  upload.fields([
+datasetRouter.post('/upload', jwtVerify,  upload.fields([
+  {name: 'thumbnail', maxCount: 1},
   { name: 'originalFiles', maxCount: 10 },
   { name: 'samplePreview', maxCount: 1 },
 ]),   handleUploadErrors, uploadDataset)
 
 datasetRouter.get('/access', accessAllDataset)
+
+
 
 datasetRouter.delete('/delete/:id', deleteDatasetByID)
 datasetRouter.patch('/update/:id', updateDatasetById)

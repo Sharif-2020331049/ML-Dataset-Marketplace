@@ -8,13 +8,19 @@ const uploadDataset = async (req, res) => {
         const {
             datasetTitle,
             category,
-            licence,
             description,
             tags,
             price,
-            uploadedBy
+            license
         } = req.body;
+        
+        const uploadedBy = req.user?.email;
+        const thumbnailFile = req.files.thumbnail?.[0];
 
+        const thumbnail = {
+            url: thumbnailFile?.path,
+            public_id: thumbnailFile?.filename
+        }
         const originalFiles =
             req.files.originalFiles?.map((file) => ({
                 url: file.path,
@@ -28,22 +34,35 @@ const uploadDataset = async (req, res) => {
             public_id: sampleFile?.filename,
         };
 
-
+        
+        // console.log("Sample Preview: ");
+        // console.log(samplePreview);
+        // console.log("thumbnail file"); 
+        // console.log(thumbnail);
+        
 
         const newDataset = new Dataset({
             datasetTitle,
             category,
-            licence,
+            license,
             description,
             tags: tags.split(",").map((tag) => tag.trim()),
             price,
+            thumbnail,
             uploadedBy,
             originalFiles,
             samplePreview,
+            
         });
 
         await newDataset.save();
+
+        console.log(newDataset);
+        
         res.status(201).json({ success: true, dataset: newDataset });
+
+
+        // res.json({success: true, message: "It's good till now"})
     } catch (err) {
         console.error("UPLOAD ERROR:", err);
         res

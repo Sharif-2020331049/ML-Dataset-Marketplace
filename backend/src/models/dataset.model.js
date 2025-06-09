@@ -11,10 +11,6 @@ const datasetSchema = new Schema(
       type: String,
       required: true,
     },
-    licence: {
-      type: String,
-      required: true,
-    },
     description: {
       type: String,
       required: true,
@@ -28,10 +24,20 @@ const datasetSchema = new Schema(
       required: true,
       min: 0,
     },
+    license: {
+      type: String,
+    },
+    thumbnail: {
+        url: { type: String, required: true },
+        public_id: { type: String, required: true },
+
+    },
     uploadedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Assuming you have a user schema
-      required: true,
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: "User", // Assuming you have a user schema
+      // required: true,
+       type: String,
+       required: true
     },
     originalFiles: [
       {

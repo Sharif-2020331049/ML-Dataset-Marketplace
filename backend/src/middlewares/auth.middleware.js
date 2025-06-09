@@ -16,7 +16,6 @@ const jwtVerify = async (req, res, next)=>{
      select("-password -refreshToken")
  
      if (!user) {
-         //  Next_Video: discuss about frontend
         return res.json( {success: false, message: "Invalid access token"} )
          
      }

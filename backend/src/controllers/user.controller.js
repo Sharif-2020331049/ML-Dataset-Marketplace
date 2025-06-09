@@ -97,7 +97,7 @@ const loginUser = asyncHandler( async (req, res)=>{
       const user =  await User.findOne({email})
 
       if(!user){
-        throw new ApiError(404, "User doesn't exist")
+         return res.json({success:false, message: "User doesn't exist"})
       }
 
       const isPasswordMatch = await user.isPasswordCorrect(password)
@@ -136,7 +136,7 @@ const loginUser = asyncHandler( async (req, res)=>{
      
     } catch (error) {
       console.log(error);
-      
+    res.json({success:false, message: error.message || "Error occured during Login" })
       // throw new ApiError(500, "Problem while login user")  
         
     }

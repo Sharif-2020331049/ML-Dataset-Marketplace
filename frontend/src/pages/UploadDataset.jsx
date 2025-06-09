@@ -157,10 +157,10 @@ const UploadDataset = () => {
                       required
                     >
                       <option value="">Select a category</option>
-                      <option value="image">Images</option>
-                      <option value="audio">Audio</option>
-                      <option value="video">Video</option>
-                      <option value="text">Text</option>
+                      <option value="Images">Images</option>
+                      <option value="Audio">Audio</option>
+                      <option value="Video">Video</option>
+                      <option value="Text">Text</option>
                     </select>
                   </div>
 

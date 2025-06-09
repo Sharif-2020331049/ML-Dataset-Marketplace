@@ -13,7 +13,7 @@ const uploadDataset = async (req, res) => {
             price,
             license
         } = req.body;
-        
+
         const uploadedBy = req.user?.email;
         const thumbnailFile = req.files.thumbnail?.[0];
 
@@ -34,12 +34,12 @@ const uploadDataset = async (req, res) => {
             public_id: sampleFile?.filename,
         };
 
-        
+
         // console.log("Sample Preview: ");
         // console.log(samplePreview);
         // console.log("thumbnail file"); 
         // console.log(thumbnail);
-        
+
 
         const newDataset = new Dataset({
             datasetTitle,
@@ -52,13 +52,13 @@ const uploadDataset = async (req, res) => {
             uploadedBy,
             originalFiles,
             samplePreview,
-            
+
         });
 
         await newDataset.save();
 
         console.log(newDataset);
-        
+
         res.status(201).json({ success: true, dataset: newDataset });
 
 
@@ -115,31 +115,57 @@ const deleteDatasetByID = async (req, res) => {
         console.error("Error deleting dataset:", err);
         res.status(500).json({ success: false, message: "Server Error", error: err.message });
     }
- };
+};
 
-const updateDatasetById = async (req, res) => { 
-    
+const updateDatasetById = async (req, res) => {
+
 };
 
 const downloadDataset = async (req, res) => {
-  const userId = req.user._id;
-  const datasetId = req.params.id;
+    const userId = req.user._id;
+    const datasetId = req.params.id;
 
-  const purchase = await Purchase.findOne({
-    userId,
-    datasetId,
-  });
+    const purchase = await Purchase.findOne({
+        userId,
+        datasetId,
+    });
 
-  if (!purchase) {
-    return res.status(403).json({ success: false, message: "You must purchase this dataset first." });
-  }
+    if (!purchase) {
+        return res.status(403).json({ success: false, message: "You must purchase this dataset first." });
+    }
 
-  const dataset = await Dataset.findById(datasetId);
-  res.status(200).json({
-    success: true,
-    originalFiles: dataset.originalFiles, // Direct download URLs
-  });
+    const dataset = await Dataset.findById(datasetId);
+    res.status(200).json({
+        success: true,
+        originalFiles: dataset.originalFiles, // Direct download URLs
+    });
 };
+
+
+const countByCategories = async (req, res) => {
+    try {
+        const result = await Dataset.aggregate([
+            {
+                $group: {
+                    _id: '$category',           // Group by category
+                    count: { $sum: 1 },         // Count datasets in each category
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    category: '$_id',
+                    count: 1,
+                },
+            },
+        ]);
+
+         res.status(200).json({ success: true, data: result });
+    } catch (err) {
+        // res.status(500).json({ error: 'Failed to fetch category data' });
+         res.status(500).json({ success: false, message: "Failed to fetch category data"});
+    }
+}
 
 export {
     uploadDataset,
@@ -147,5 +173,6 @@ export {
     deleteDatasetByID,
     updateDatasetById,
     accessDatasetByID,
-    downloadDataset
+    downloadDataset,
+    countByCategories
 };

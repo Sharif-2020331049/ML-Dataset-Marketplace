@@ -1,5 +1,5 @@
 import express from 'express'
-import { accessAllDataset, accessDatasetByID, deleteDatasetByID, downloadDataset, updateDatasetById, uploadDataset } from '../controllers/dataset.controller.js'
+import { accessAllDataset, accessDatasetByID, countByCategories, deleteDatasetByID, downloadDataset, updateDatasetById, uploadDataset } from '../controllers/dataset.controller.js'
 import { cloudinary, storage } from '../config/cloudinary.js'
 import multer from 'multer'
 import { handleUploadErrors, upload } from '../middlewares/multer.js'
@@ -19,7 +19,7 @@ datasetRouter.post('/upload', jwtVerify,  upload.fields([
 datasetRouter.get('/access', accessAllDataset)
 
 
-
+datasetRouter.get('/categories', countByCategories)
 datasetRouter.delete('/delete/:id', deleteDatasetByID)
 datasetRouter.patch('/update/:id', updateDatasetById)
 

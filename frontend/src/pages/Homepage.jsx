@@ -1,41 +1,103 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button.jsx';
 import CategoryCard from '../components/ui/CategoryCard.jsx';
 import DatasetCard from '../components/ui/DatasetCard.jsx';
 import { Upload, Search, CheckCircle, DollarSign, Image, Video, Volume2, FileText, ArrowRight, Star } from 'lucide-react';
+import axios from '../api/axios.js';
+import { toast } from 'react-toastify';
 
 const Homepage = () => {
-  const categories = [
-    {
-      name: 'Images',
+
+
+  // const categories = [
+  //   {
+  //     name: 'Images',
+  //     icon: <Image className="w-8 h-8" />,
+  //     count: 2847,
+  //     description: 'Computer vision datasets for classification, detection, and segmentation',
+  //     color: 'bg-gradient-to-br from-green-500 to-emerald-600',
+  //   },
+  //   {
+  //     name: 'Audio',
+  //     icon: <Volume2 className="w-8 h-8" />,
+  //     count: 1293,
+  //     description: 'Speech, music, and sound datasets for audio ML applications',
+  //     color: 'bg-gradient-to-br from-yellow-500 to-orange-600',
+  //   },
+  //   {
+  //     name: 'Video',
+  //     icon: <Video className="w-8 h-8" />,
+  //     count: 567,
+  //     description: 'Action recognition, tracking, and video analysis datasets',
+  //     color: 'bg-gradient-to-br from-red-500 to-pink-600',
+  //   },
+  //   {
+  //     name: 'Text',
+  //     icon: <FileText className="w-8 h-8" />,
+  //     count: 3421,
+  //     description: 'NLP datasets for sentiment, classification, and language modeling',
+  //     color: 'bg-gradient-to-br from-blue-500 to-purple-600',
+  //   },
+  // ];
+
+  const categoryMeta = {
+    Images: {
       icon: <Image className="w-8 h-8" />,
-      count: 2847,
       description: 'Computer vision datasets for classification, detection, and segmentation',
       color: 'bg-gradient-to-br from-green-500 to-emerald-600',
     },
-    {
-      name: 'Audio',
+    Audio: {
       icon: <Volume2 className="w-8 h-8" />,
-      count: 1293,
       description: 'Speech, music, and sound datasets for audio ML applications',
       color: 'bg-gradient-to-br from-yellow-500 to-orange-600',
     },
-    {
-      name: 'Video',
+    Video: {
       icon: <Video className="w-8 h-8" />,
-      count: 567,
       description: 'Action recognition, tracking, and video analysis datasets',
       color: 'bg-gradient-to-br from-red-500 to-pink-600',
     },
-    {
-      name: 'Text',
+    Text: {
       icon: <FileText className="w-8 h-8" />,
-      count: 3421,
       description: 'NLP datasets for sentiment, classification, and language modeling',
       color: 'bg-gradient-to-br from-blue-500 to-purple-600',
     },
-  ];
+  };
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get('/dataset/categories');
+        
+        if (res.data.success) {
+          console.log(res.data.data);
+          
+          const merged = res.data.data.map((item) => ({
+            name: item.category,
+            count: item.count,
+            ...categoryMeta[item.category], // add icon, color, description
+          }));
+          
+          setCategories(merged);
+
+        }else{
+          toast.error("Error occurred during fetching category count")
+        }
+      } catch (err) {
+        console.error('Failed to fetch categories', err);
+      }
+
+      
+    };
+
+
+
+    fetchCategories();
+  }, []);
+
+
 
   const featuredDatasets = [
     {
@@ -123,7 +185,7 @@ const Homepage = () => {
               Marketplace
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Connect data creators with researchers and developers. Buy and sell high-quality machine learning datasets 
+              Connect data creators with researchers and developers. Buy and sell high-quality machine learning datasets
               across images, audio, video, and text.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -235,7 +297,7 @@ const Homepage = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Join the Data Revolution?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Whether you're looking to monetize your data or find the perfect dataset for your project, 
+            Whether you're looking to monetize your data or find the perfect dataset for your project,
             OpenDataX is your gateway to the future of machine learning.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

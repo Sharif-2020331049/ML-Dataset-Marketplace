@@ -152,6 +152,7 @@ const BrowseDatasets = () => {
               {datasets.map((dataset) => (
                 <DatasetCard
                   key={dataset._id}
+                  id={dataset._id}
                   title={dataset.datasetTitle}
                   description={dataset.description}
                   price={dataset.price}

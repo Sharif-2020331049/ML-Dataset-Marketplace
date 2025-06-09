@@ -5,6 +5,7 @@ import { Button } from '../components/ui/Button.jsx';
 
 const DatasetDetails = () => {
   const { id } = useParams();
+  
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 

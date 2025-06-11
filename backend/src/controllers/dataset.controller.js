@@ -2,177 +2,200 @@ import { Dataset } from "../models/dataset.model.js";
 import { Purchase } from "../models/purchase.model.js";
 
 const uploadDataset = async (req, res) => {
-    try {
+  try {
+    const { datasetTitle, category, description, tags, price, license } =
+      req.body;
 
+    const uploadedBy = req.user?.email;
+    const thumbnailFile = req.files.thumbnail?.[0];
 
-        const {
-            datasetTitle,
-            category,
-            description,
-            tags,
-            price,
-            license
-        } = req.body;
+    const thumbnail = {
+      url: thumbnailFile?.path,
+      public_id: thumbnailFile?.filename,
+    };
+    const originalFiles =
+      req.files.originalFiles?.map((file) => ({
+        url: file.path,
+        public_id: file.filename,
+      })) || [];
 
-        const uploadedBy = req.user?.email;
-        const thumbnailFile = req.files.thumbnail?.[0];
+    const sampleFile = req.files.samplePreview?.[0];
 
-        const thumbnail = {
-            url: thumbnailFile?.path,
-            public_id: thumbnailFile?.filename
-        }
-        const originalFiles =
-            req.files.originalFiles?.map((file) => ({
-                url: file.path,
-                public_id: file.filename,
-            })) || [];
+    const samplePreview = {
+      url: sampleFile?.path,
+      public_id: sampleFile?.filename,
+    };
 
-        const sampleFile = req.files.samplePreview?.[0];
+    // console.log("Sample Preview: ");
+    // console.log(samplePreview);
+    // console.log("thumbnail file");
+    // console.log(thumbnail);
 
-        const samplePreview = {
-            url: sampleFile?.path,
-            public_id: sampleFile?.filename,
-        };
+    const newDataset = new Dataset({
+      datasetTitle,
+      category,
+      license,
+      description,
+      tags: tags.split(",").map((tag) => tag.trim()),
+      price,
+      thumbnail,
+      uploadedBy,
+      originalFiles,
+      samplePreview,
+    });
 
+    await newDataset.save();
 
-        // console.log("Sample Preview: ");
-        // console.log(samplePreview);
-        // console.log("thumbnail file"); 
-        // console.log(thumbnail);
+    console.log(newDataset);
 
+    res.status(201).json({ success: true, dataset: newDataset });
 
-        const newDataset = new Dataset({
-            datasetTitle,
-            category,
-            license,
-            description,
-            tags: tags.split(",").map((tag) => tag.trim()),
-            price,
-            thumbnail,
-            uploadedBy,
-            originalFiles,
-            samplePreview,
-
-        });
-
-        await newDataset.save();
-
-        console.log(newDataset);
-
-        res.status(201).json({ success: true, dataset: newDataset });
-
-
-        // res.json({success: true, message: "It's good till now"})
-    } catch (err) {
-        console.error("UPLOAD ERROR:", err);
-        res
-            .status(500)
-            .json({ success: false, message: "Server Error", error: err.message });
-        res.status(500).json({ success: false, message: 'Server Error', error: err.message, stack: err.stack });
-
-    }
+    // res.json({success: true, message: "It's good till now"})
+  } catch (err) {
+    console.error("UPLOAD ERROR:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Server Error",
+        error: err.message,
+        stack: err.stack,
+      });
+  }
 };
 
 const accessAllDataset = async (req, res) => {
-    try {
-        const datasets = await Dataset.find().populate("uploadedBy", "name email");
-        res.status(200).json({ success: true, datasets });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Server Error" });
-    }
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
+    const skip = (page - 1) * limit;
+
+    const [datasets, total] = await Promise.all([
+      Dataset.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+      Dataset.countDocuments(),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      datasets,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
 
 const accessDatasetByID = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        const dataset = await Dataset.findById(id).populate("uploadedBy", "name email");
+    const dataset = await Dataset.findById(id).populate(
+      "uploadedBy",
+      "name email"
+    );
 
-        if (!dataset) {
-            return res.status(404).json({ success: false, message: "Dataset not found" });
-        }
-
-        res.status(200).json({ success: true, dataset });
-    } catch (err) {
-        console.error("Error fetching dataset by ID:", err);
-        res.status(500).json({ success: false, message: "Server Error", error: err.message });
+    if (!dataset) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Dataset not found" });
     }
+
+    res.status(200).json({ success: true, dataset });
+  } catch (err) {
+    console.error("Error fetching dataset by ID:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
+  }
 };
 
 const deleteDatasetByID = async (req, res) => {
-    try {
-        const { id } = req.body;
+  try {
+    const { id } = req.body;
 
-        const deleted = await Dataset.findByIdAndDelete(id);
+    const deleted = await Dataset.findByIdAndDelete(id);
 
-        if (!deleted) {
-            return res.status(404).json({ success: false, message: "Dataset not found" });
-        }
-
-        res.status(200).json({ success: true, message: "Dataset deleted successfully" });
-    } catch (err) {
-        console.error("Error deleting dataset:", err);
-        res.status(500).json({ success: false, message: "Server Error", error: err.message });
+    if (!deleted) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Dataset not found" });
     }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Dataset deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting dataset:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: err.message });
+  }
 };
 
-const updateDatasetById = async (req, res) => {
-
-};
+const updateDatasetById = async (req, res) => {};
 
 const downloadDataset = async (req, res) => {
-    const userId = req.user._id;
-    const datasetId = req.params.id;
+  const userId = req.user._id;
+  const datasetId = req.params.id;
 
-    const purchase = await Purchase.findOne({
-        userId,
-        datasetId,
-    });
+  const purchase = await Purchase.findOne({
+    userId,
+    datasetId,
+  });
 
-    if (!purchase) {
-        return res.status(403).json({ success: false, message: "You must purchase this dataset first." });
-    }
+  if (!purchase) {
+    return res
+      .status(403)
+      .json({
+        success: false,
+        message: "You must purchase this dataset first.",
+      });
+  }
 
-    const dataset = await Dataset.findById(datasetId);
-    res.status(200).json({
-        success: true,
-        originalFiles: dataset.originalFiles, // Direct download URLs
-    });
+  const dataset = await Dataset.findById(datasetId);
+  res.status(200).json({
+    success: true,
+    originalFiles: dataset.originalFiles, // Direct download URLs
+  });
 };
 
-
 const countByCategories = async (req, res) => {
-    try {
-        const result = await Dataset.aggregate([
-            {
-                $group: {
-                    _id: '$category',           // Group by category
-                    count: { $sum: 1 },         // Count datasets in each category
-                },
-            },
-            {
-                $project: {
-                    _id: 0,
-                    category: '$_id',
-                    count: 1,
-                },
-            },
-        ]);
+  try {
+    const result = await Dataset.aggregate([
+      {
+        $group: {
+          _id: "$category", // Group by category
+          count: { $sum: 1 }, // Count datasets in each category
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          count: 1,
+        },
+      },
+    ]);
 
-         res.status(200).json({ success: true, data: result });
-    } catch (err) {
-        // res.status(500).json({ error: 'Failed to fetch category data' });
-         res.status(500).json({ success: false, message: "Failed to fetch category data"});
-    }
-}
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    // res.status(500).json({ error: 'Failed to fetch category data' });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch category data" });
+  }
+};
 
 export {
-    uploadDataset,
-    accessAllDataset,
-    deleteDatasetByID,
-    updateDatasetById,
-    accessDatasetByID,
-    downloadDataset,
-    countByCategories
+  uploadDataset,
+  accessAllDataset,
+  deleteDatasetByID,
+  updateDatasetById,
+  accessDatasetByID,
+  downloadDataset,
+  countByCategories,
 };

@@ -5,7 +5,7 @@ import { confirmPayment,  checkIfPurchased } from "../controllers/purchase.contr
 const purchaseRouter = express.Router();
 
 
-purchaseRouter.post('/confirm',jwtVerify, confirmPayment)
+purchaseRouter.post('/payment',jwtVerify, confirmPayment)
 purchaseRouter.get('/status/:id', jwtVerify, checkIfPurchased);
 
 

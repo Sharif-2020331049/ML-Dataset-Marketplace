@@ -23,7 +23,7 @@ datasetRouter.get('/categories', countByCategories)
 datasetRouter.delete('/delete/:id', deleteDatasetByID)
 datasetRouter.patch('/update/:id', updateDatasetById)
 
-datasetRouter.get('/access/:id',accessDatasetByID )
+datasetRouter.get('/:id',accessDatasetByID )
 
 //  upload.fields([
 //     { name: 'originalFiles', maxCount: 5 },

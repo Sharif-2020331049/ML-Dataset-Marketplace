@@ -1,6 +1,9 @@
 import { Dataset } from "../models/dataset.model.js";
 import { Purchase } from "../models/purchase.model.js";
 import Stripe from "stripe";
+import dotenv from 'dotenv'
+
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 

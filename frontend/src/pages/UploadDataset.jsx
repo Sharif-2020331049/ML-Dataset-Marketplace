@@ -25,7 +25,7 @@ const UploadDataset = () => {
   const handlePreviewClick = () => previewInputRef.current?.click();
 
 
-  const [originalFiles, setOriginalFiles] = useState(null);
+  const [originalFiles, setOriginalFiles] = useState([]);
   const [samplePreview, setSamplePreview] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,7 +67,10 @@ const UploadDataset = () => {
     });
 
     if (thumbnail) data.append("thumbnail", thumbnail);
-    if (originalFiles) data.append("originalFiles", originalFiles);
+    if (originalFiles && originalFiles.length > 0) {
+      originalFiles.forEach(file => data.append("originalFiles", file));
+    }
+
 
 
     // Safely append preview files if they exist
@@ -75,9 +78,10 @@ const UploadDataset = () => {
       samplePreview.forEach(file => data.append("samplePreview", file));
     }
 
-    // for (let [key, value] of data.entries()) {
-    //   console.log(`${key}: ${value}`);
-    // }
+    console.log("Files to upload:");
+    console.log("Thumbnail:", thumbnail);
+    console.log("Original files:", originalFiles);
+    console.log("Preview files:", samplePreview);
 
     try {
       setIsSubmitting(true);
@@ -309,10 +313,21 @@ const UploadDataset = () => {
                       {/* Dataset Files Input */}
                       <input
                         type="file"
+                        multiple
                         ref={datasetInputRef}
-                        onChange={(e) => setOriginalFiles(e.target.files?.[0] || null)}
+                        accept=".zip,.tar,.csv,.json"
+                        onChange={(e) => {
+                          const newFiles = Array.from(e.target.files);
+                          setOriginalFiles((prev) => {
+                            const existingNames = new Set(prev?.map(file => file.name));
+                            const filteredNewFiles = newFiles.filter(file => !existingNames.has(file.name));
+                            return prev ? [...prev, ...filteredNewFiles] : filteredNewFiles;
+                          });
+                        }}
+
                         className="hidden"
                       />
+
 
                       <Button type="button" variant="outline" onClick={handleDatasetClick}>
                         Select Files
@@ -323,15 +338,14 @@ const UploadDataset = () => {
                         Supported formats: ZIP, TAR, CSV, JSON, and more. Max size: 10GB
                       </p>
 
-                      {originalFiles && (
+                      {originalFiles && originalFiles.length > 0 && (
                         <div className="mt-3 text-left">
-                          <p className="text-sm font-medium text-gray-700 mb-1">Selected File:</p>
+                          <p className="text-sm font-medium text-gray-700 mb-1">Selected Files:</p>
                           <p className="text-sm text-gray-700">
-                            {originalFiles.name}
+                            {originalFiles.map(file => file.name).join(', ')}
                           </p>
                         </div>
                       )}
-
 
 
                     </div>
@@ -361,9 +375,9 @@ const UploadDataset = () => {
                             return prev ? [...prev, ...filteredNewFiles] : filteredNewFiles;
                           });
                         }}
-
                         className="hidden"
                       />
+
                       <Button type="button" variant="outline" size="sm" onClick={handlePreviewClick}>
                         Select Samples
                       </Button>
@@ -408,16 +422,16 @@ const UploadDataset = () => {
                   disabled={isSubmitting}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8"
                 >
-                  {isSubmitting ?(
-                    <> 
-                     <Loader2 className="w-5 h-5 mr-1  animate-spin" />
-                    Submitting...  
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-1  animate-spin" />
+                      Submitting...
                     </>
-                    ):('Submit for Review')}
+                  ) : ('Submit for Review')}
                 </Button>
               </div>
 
-{/* 
+              {/* 
               <Button
                 type="submit"
                 size="lg"

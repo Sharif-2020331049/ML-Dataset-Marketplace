@@ -5,7 +5,7 @@ const jwtVerify = async (req, res, next) => {
   try {
         const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "");
 
-        console.log(`Token chekck in middleware: ${token}`);
+        // console.log(`Token chekck in middleware: ${token}`);
         
 
     if (!token) {

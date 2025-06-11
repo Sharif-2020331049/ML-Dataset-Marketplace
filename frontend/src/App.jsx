@@ -13,7 +13,7 @@ import Payment from "./pages/Payment.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
-// import NotFound from "./pages/NotFound.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 
 
@@ -39,7 +39,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
 
 

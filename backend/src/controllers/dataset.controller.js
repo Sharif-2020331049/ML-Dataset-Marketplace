@@ -1,69 +1,118 @@
 import { Dataset } from "../models/dataset.model.js";
 import { Purchase } from "../models/purchase.model.js";
 
+// const uploadDataset = async (req, res) => {
+//   try {
+//     const { datasetTitle, category, description, tags, price, license } =
+//       req.body;
+
+//     const uploadedBy = req.user?.email;
+//     const thumbnailFile = req.files.thumbnail?.[0];
+
+//     const thumbnail = {
+//       url: thumbnailFile?.path,
+//       public_id: thumbnailFile?.filename,
+//     };
+//     const originalFiles =
+//       req.files.originalFiles?.map((file) => ({
+//         url: file.path,
+//         public_id: file.filename,
+//       })) || [];
+
+//     const sampleFile = req.files.samplePreview?.[0];
+
+//     const samplePreview = {
+//       url: sampleFile?.path,
+//       public_id: sampleFile?.filename,
+//     };
+
+//     // console.log("Sample Preview: ");
+//     // console.log(samplePreview);
+//     // console.log("thumbnail file");
+//     // console.log(thumbnail);
+
+//     const newDataset = new Dataset({
+//       datasetTitle,
+//       category,
+//       license,
+//       description,
+//       tags: tags.split(",").map((tag) => tag.trim()),
+//       price,
+//       thumbnail,
+//       uploadedBy,
+//       originalFiles,
+//       samplePreview,
+//     });
+
+//     await newDataset.save();
+
+//     console.log(newDataset);
+
+//     res.status(201).json({ success: true, dataset: newDataset });
+
+//     // res.json({success: true, message: "It's good till now"})
+//   } catch (err) {
+//     console.error("UPLOAD ERROR:", err);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Server Error", error: err.message });
+//     res
+//       .status(500)
+//       .json({
+//         success: false,
+//         message: "Server Error",
+//         error: err.message,
+//         stack: err.stack,
+//       });
+//   }
+// };
+
+
 const uploadDataset = async (req, res) => {
   try {
-    const { datasetTitle, category, description, tags, price, license } =
-      req.body;
+    //   console.log('Received files:', {
+    //   thumbnail: req.files?.thumbnail?.[0]?.mimetype,
+    //   originalFiles: req.files?.originalFiles?.map(f => f.mimetype),
+    //   samplePreview: req.files?.samplePreview?.[0]?.mimetype
+    // });
 
-    const uploadedBy = req.user?.email;
-    const thumbnailFile = req.files.thumbnail?.[0];
 
-    const thumbnail = {
-      url: thumbnailFile?.path,
-      public_id: thumbnailFile?.filename,
-    };
-    const originalFiles =
-      req.files.originalFiles?.map((file) => ({
-        url: file.path,
-        public_id: file.filename,
-      })) || [];
+    // Validate required fields first
+    const requiredFields = ['datasetTitle', 'category', 'description', 'price'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missingFields.join(', ')}`
+      });
+    }
 
-    const sampleFile = req.files.samplePreview?.[0];
-
-    const samplePreview = {
-      url: sampleFile?.path,
-      public_id: sampleFile?.filename,
-    };
-
-    // console.log("Sample Preview: ");
-    // console.log(samplePreview);
-    // console.log("thumbnail file");
-    // console.log(thumbnail);
+    // Process files only if they exist
+    const processFile = (file) => file ? {
+      url: file.path,
+      public_id: file.filename
+    } : null;
 
     const newDataset = new Dataset({
-      datasetTitle,
-      category,
-      license,
-      description,
-      tags: tags.split(",").map((tag) => tag.trim()),
-      price,
-      thumbnail,
-      uploadedBy,
-      originalFiles,
-      samplePreview,
+      ...req.body,
+      tags: req.body.tags?.split(',').map(tag => tag.trim()) || [],
+      thumbnail: processFile(req.files?.thumbnail?.[0]),
+      originalFiles: req.files?.originalFiles?.map(processFile) || [],
+      samplePreview: processFile(req.files?.samplePreview?.[0]),
+      uploadedBy: req.user?.email
     });
 
     await newDataset.save();
-
-    console.log(newDataset);
-
     res.status(201).json({ success: true, dataset: newDataset });
 
-    // res.json({success: true, message: "It's good till now"})
   } catch (err) {
-    console.error("UPLOAD ERROR:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Server Error", error: err.message });
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Server Error",
-        error: err.message,
-        stack: err.stack,
-      });
+    console.error('DATABASE SAVE ERROR:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save dataset',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
 

@@ -1,6 +1,6 @@
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+// import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import validator from 'validator'
 import jwt from "jsonwebtoken";
@@ -57,12 +57,12 @@ const registerUser = asyncHandler( async (req, res)=>{
         "-password -refreshToken"
        )
 
-       console.log(createdUser);
+      //  console.log(createdUser);
        
        const {accessToken, refreshToken }= await generateAccessAndRefreshToken(createdUser._id)
 
  
-       console.log(accessToken);
+      //  console.log(accessToken);
        
        if(!createdUser) {
         // throw new ApiError(500, "Something went wrong while regitering the user")
@@ -103,7 +103,6 @@ const loginUser = asyncHandler( async (req, res)=>{
       const isPasswordMatch = await user.isPasswordCorrect(password)
 
       if(!isPasswordMatch){
-        // throw new ApiError(401, "Invalid user credentials")
         return res.json({success: false, message: "Invalid user credentials"})
       }
 

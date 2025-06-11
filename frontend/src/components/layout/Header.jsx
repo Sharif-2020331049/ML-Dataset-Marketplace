@@ -5,7 +5,7 @@ import { Button } from '../ui/Button.jsx';
 import { DataContext } from '../../context/DataContext.jsx';
 
 const Header = () => {
-  const { token, setToken } = useContext(DataContext)
+  const { token, setToken, navigate } = useContext(DataContext)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -52,13 +52,14 @@ const Header = () => {
               <>
                 <Button
                   variant="outline" 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  className="text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                   onClick={() => {
                     setToken(null);
                     localStorage.removeItem('token');
+                    navigate('/')
                   }}
                 >
-                  Logout
+                  Log out
                 </Button>
               </>
             ) : (

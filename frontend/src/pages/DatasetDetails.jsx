@@ -150,7 +150,7 @@ const DatasetDetails = () => {
                         <Shield className="w-5 h-5 text-gray-400 mr-3" />
                         <div>
                           <div className="text-sm text-gray-500">Uploaded By</div>
-                          <div className="font-medium">{dataset.uploadedBy?.email}</div>
+                          <div className="font-medium">{dataset.uploadedBy}</div>
                         </div>
                       </div>
                       <div className="flex items-center">

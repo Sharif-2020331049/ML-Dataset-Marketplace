@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Filter, Grid, List } from 'lucide-react';
+import { Search, Filter, Grid, List, Turtle } from 'lucide-react';
 import { Button } from '../components/ui/Button.jsx';
 import DatasetCard from '../components/ui/DatasetCard.jsx';
 import axios from '../api/axios.js';
@@ -10,6 +10,7 @@ const BrowseDatasets = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [loading, setLoading] = useState(false)
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -33,6 +34,7 @@ const BrowseDatasets = () => {
 
   const fetchDatasets = async () => {
     try {
+      setLoading(true)
       const response = await axios.get(`/dataset/access?page=${page}`);
       if (response.data.success) {
         setDatasets(response.data.datasets);
@@ -40,6 +42,8 @@ const BrowseDatasets = () => {
       }
     } catch (err) {
       console.error('Error fetching datasets:', err);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -161,29 +165,33 @@ const BrowseDatasets = () => {
               </div>
             </div>
 
-            <div className={`grid gap-6 ${viewMode === 'grid'
-              ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
-              : 'grid-cols-1'
-              }`}>
-              {datasets.map((dataset) => (
-                <DatasetCard
-                  key={dataset._id}
-                  id={dataset._id}
-                  title={dataset.datasetTitle}
-                  description={dataset.description}
-                  price={dataset.price}
-                  thumbnail={dataset.thumbnail?.url}
-                  seller={dataset.uploadedBy?.email}
-                  category={dataset.category}
-                  downloads={dataset.downloads || 0} // fallback if not in response
-                  views={dataset.views || 0}
-                />
+            {loading ? (
+              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="animate-pulse bg-white h-48 rounded-xl shadow-sm" />
+                ))}
+              </div>
+            ) : (
+              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
+                {datasets.map((dataset) => (
+                  <DatasetCard
+                    key={dataset._id}
+                    id={dataset._id}
+                    title={dataset.datasetTitle}
+                    description={dataset.description}
+                    price={dataset.price}
+                    thumbnail={dataset.thumbnail?.url}
+                    seller={dataset.uploadedBy?.email}
+                    category={dataset.category}
+                    downloads={dataset.downloads || 0}
+                    views={dataset.views || 0}
+                  />
+                ))}
+              </div>
+            )}
 
-              ))}
 
 
-
-            </div>
             {datasets.length === 0 && (
               <div className="text-center text-gray-500 mt-8">
                 No datasets found.

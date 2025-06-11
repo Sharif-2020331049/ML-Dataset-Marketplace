@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { useRef } from 'react';
 import axios from '../api/axios.js';
 import { toast } from 'react-toastify';
+import { Loader2 } from 'lucide-react';
 
 const UploadDataset = () => {
   const [formData, setFormData] = useState({
@@ -74,12 +75,12 @@ const UploadDataset = () => {
       samplePreview.forEach(file => data.append("samplePreview", file));
     }
 
-    for (let [key, value] of data.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // for (let [key, value] of data.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
 
     try {
-      // setIsSubmitting(true);
+      setIsSubmitting(true);
       const token = localStorage.getItem("token"); // Assuming you store JWT here
       const res = await axios.post("/dataset/upload", data, {
         headers: {
@@ -98,10 +99,9 @@ const UploadDataset = () => {
       console.error("Upload failed:", error);
       console.error("Upload failed:", error.response?.data || error.message);
       toast.error("Upload failed");
+    } finally {
+      setIsSubmitting(false);
     }
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
 
 
   };
@@ -408,9 +408,36 @@ const UploadDataset = () => {
                   disabled={isSubmitting}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit for Review'}
+                  {isSubmitting ?(
+                    <> 
+                     <Loader2 className="w-5 h-5 mr-1  animate-spin" />
+                    Submitting...  
+                    </>
+                    ):('Submit for Review')}
                 </Button>
               </div>
+
+{/* 
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full flex items-center justify-center gap-2"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Redirecting to Stripe...
+                  </>
+                ) : (
+                  `Pay with Stripe - $${dataset?.price}`
+                )}
+              </Button> */}
+
+
+
+
+
             </form>
           </div>
         </div>

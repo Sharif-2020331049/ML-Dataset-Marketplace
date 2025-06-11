@@ -72,7 +72,7 @@ const Homepage = () => {
         const res = await axios.get('/dataset/categories');
         
         if (res.data.success) {
-          console.log(res.data.data);
+
           
           const merged = res.data.data.map((item) => ({
             name: item.category,

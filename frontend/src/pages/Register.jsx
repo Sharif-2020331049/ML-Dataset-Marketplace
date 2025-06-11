@@ -51,8 +51,8 @@ const {token, setToken, navigate} = useContext(DataContext)
         toast.error(response.data.message)
       }
     } catch (error) {
-      console.log("Signup Failed")
-      toast.error(err.response?.data?.message || "Signup failed");
+      toast.error(error.response?.data?.message || "Signup failed");
+
     }
   };
 

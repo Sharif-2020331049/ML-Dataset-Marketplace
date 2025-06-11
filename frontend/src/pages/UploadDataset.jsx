@@ -229,7 +229,7 @@ const UploadDataset = () => {
                       Price (Taka) *
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">৳</span>
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
                       <input
                         type="number"
                         name="price"
@@ -243,7 +243,7 @@ const UploadDataset = () => {
                       />
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
-                      Set to ৳0 for free datasets
+                      Set to $0 for free datasets
                     </p>
                   </div>
                 </div>

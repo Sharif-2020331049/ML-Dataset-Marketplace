@@ -107,7 +107,7 @@ const Header = () => {
                     <div className="hidden group-hover:flex flex-col gap-2 absolute right-0 mt-2 w-40 py-3 px-5 bg-white text-gray-700 rounded shadow-lg z-50">
                       <Link to="/profile" className="hover:text-black">My Profile</Link>
                       <button onClick={() => navigate('/dashboard')} className="text-left hover:text-black">Dashboard</button>
-                      <button onClick={logout} className="text-left hover:text-black">Logout</button>
+                      {/* <button onClick={logout} className="text-left hover:text-black">Logout</button> */}
                     </div>
                   </div>
                 ) : (

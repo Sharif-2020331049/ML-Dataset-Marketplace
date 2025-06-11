@@ -11,22 +11,38 @@ const BrowseDatasets = () => {
   const [priceRange, setPriceRange] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [datasets, setDatasets] = useState([])
 
   useEffect(() => {
     fetchDatasets();
-  }, []);
+  }, [page]);
+
+
+  // const fetchDatasets = async () => {
+  //   try {
+  //     const response = await axios.get('/dataset/access'); // Adjust path if needed
+  //     if (response.data.success) {
+  //       setDatasets(response.data.datasets);
+  //     }
+  //   } catch (err) {
+  //     console.error('Error fetching datasets:', err);
+  //   }
+  // };
 
   const fetchDatasets = async () => {
     try {
-      const response = await axios.get('/dataset/access'); // Adjust path if needed
+      const response = await axios.get(`/dataset/access?page=${page}`);
       if (response.data.success) {
         setDatasets(response.data.datasets);
+        setTotalPages(response.data.totalPages);
       }
     } catch (err) {
       console.error('Error fetching datasets:', err);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -96,9 +112,9 @@ const BrowseDatasets = () => {
                 >
                   <option value="all">All Prices</option>
                   <option value="free">Free</option>
-                  <option value="0-100">৳0 - ৳100</option>
-                  <option value="100-300">৳100 - ৳300</option>
-                  <option value="300+">৳300+</option>
+                  <option value="0-100">$0 - $100</option>
+                  <option value="100-300">$100 - $300</option>
+                  <option value="300+">$300+</option>
                 </select>
               </div>
 
@@ -145,7 +161,7 @@ const BrowseDatasets = () => {
               </div>
             </div>
 
-            <div className={`grid gap-6 ৳{viewMode === 'grid'
+            <div className={`grid gap-6 ${viewMode === 'grid'
               ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
               : 'grid-cols-1'
               }`}>
@@ -164,13 +180,34 @@ const BrowseDatasets = () => {
                 />
 
               ))}
-            </div>
 
-            <div className="text-center mt-12">
-              <Button size="lg" variant="outline">
-                Load More Datasets
+
+
+            </div>
+            {datasets.length === 0 && (
+              <div className="text-center text-gray-500 mt-8">
+                No datasets found.
+              </div>
+            )}
+
+            <div className="flex justify-center mt-12 space-x-4">
+              <Button
+                variant="outline"
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-gray-600 self-center">Page {page} of {totalPages}</span>
+              <Button
+                variant="outline"
+                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                disabled={page === totalPages}
+              >
+                Next
               </Button>
             </div>
+
           </div>
         </div>
       </div>

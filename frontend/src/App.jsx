@@ -13,7 +13,7 @@ import Payment from "./pages/Payment.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
-import NotFound from "./pages/NotFound.jsx";
+// import NotFound from "./pages/NotFound.jsx";
 
 
 

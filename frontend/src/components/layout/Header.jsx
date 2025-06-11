@@ -46,16 +46,35 @@ const Header = () => {
           </div>
 
           {/* Auth Buttons */}
+          {/* Auth Buttons (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/login">
-              <Button variant="outline">Login</Button>
-            </Link>
-            <Link to="/register">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                Sign Up
-              </Button>
-            </Link>
+            {token ? (
+              <>
+                <Button
+                  variant="outline" 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  onClick={() => {
+                    setToken(null);
+                    localStorage.removeItem('token');
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="outline">Login</Button>
+                </Link>
+                <Link to="/register">
+                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
+
 
           {/* Mobile Menu Button */}
           <button

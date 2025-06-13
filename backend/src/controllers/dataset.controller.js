@@ -116,15 +116,39 @@ const uploadDataset = async (req, res) => {
   }
 };
 
+// const accessAllDataset = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = 6;
+//     const skip = (page - 1) * limit;
+
+//     const [datasets, total] = await Promise.all([
+//       Dataset.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+//       Dataset.countDocuments(),
+//     ]);
+
+//     res.status(200).json({
+//       success: true,
+//       datasets,
+//       totalPages: Math.ceil(total / limit),
+//       currentPage: page,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
+
 const accessAllDataset = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
 
+    const filter = { status: "approved" }; // Only fetch approved datasets
+
     const [datasets, total] = await Promise.all([
-      Dataset.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
-      Dataset.countDocuments(),
+      Dataset.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }),
+      Dataset.countDocuments(filter),
     ]);
 
     res.status(200).json({

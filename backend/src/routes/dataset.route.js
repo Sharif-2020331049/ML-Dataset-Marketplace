@@ -2,10 +2,14 @@ import express from "express";
 import {
   accessAllDataset,
   accessDatasetByID,
+  accessPendingData,
   countByCategories,
   deleteDatasetByID,
   downloadDataset,
+  getApprovedDatasets,
+  getRejectedDatasets,
   updateDatasetById,
+  updateDatasetStatus,
   uploadDataset,
 } from "../controllers/dataset.controller.js";
 import { cloudinary, storage } from "../config/cloudinary.js";
@@ -14,6 +18,14 @@ import { handleUploadErrors, upload } from "../middlewares/multer.js";
 import { jwtVerify } from "../middlewares/auth.middleware.js";
 
 const datasetRouter = express.Router();
+
+// For admin
+datasetRouter.get('/pending-dataset', accessPendingData)
+datasetRouter.patch('/update-status/:id', updateDatasetStatus);
+datasetRouter.get('/approved-dataset', getApprovedDatasets);
+datasetRouter.get('/rejected-dataset', getRejectedDatasets);
+// datasetRouter.get('/stats', getDatasetStats);
+
 
 // router.post(
 //   "/upload",
@@ -76,12 +88,11 @@ datasetRouter.get("/access", accessAllDataset);
 datasetRouter.get("/categories", countByCategories);
 datasetRouter.delete("/delete/:id", deleteDatasetByID);
 datasetRouter.patch("/update/:id", updateDatasetById);
-
 datasetRouter.get("/:id", accessDatasetByID);
-
-
-
 // For download
 datasetRouter.get("/download/:datasetId", jwtVerify, downloadDataset);
+
+
+
 
 export default datasetRouter;

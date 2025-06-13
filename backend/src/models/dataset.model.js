@@ -28,16 +28,15 @@ const datasetSchema = new Schema(
       type: String,
     },
     thumbnail: {
-        url: { type: String, required: true },
-        public_id: { type: String, required: true },
-
+      url: { type: String, required: true },
+      public_id: { type: String, required: true },
     },
     uploadedBy: {
       // type: mongoose.Schema.Types.ObjectId,
       // ref: "User", // Assuming you have a user schema
       // required: true,
-       type: String,
-       required: true
+      type: String,
+      required: true,
     },
     originalFiles: [
       {
@@ -49,10 +48,10 @@ const datasetSchema = new Schema(
       url: { type: String, required: true },
       public_id: { type: String, required: true },
     },
-     status: {
+    status: {
       type: String,
-      enum: ['pending', 'approved'],
-      default: 'pending',
+      enum: ["pending", "approved", "rejected"], // added 'rejected'
+      default: "pending",
     },
   },
   {

@@ -67,7 +67,6 @@ import { Purchase } from "../models/purchase.model.js";
 //   }
 // };
 
-
 const uploadDataset = async (req, res) => {
   try {
     //   console.log('Received files:', {
@@ -76,42 +75,43 @@ const uploadDataset = async (req, res) => {
     //   samplePreview: req.files?.samplePreview?.[0]?.mimetype
     // });
 
-
     // Validate required fields first
-    const requiredFields = ['datasetTitle', 'category', 'description', 'price'];
-    const missingFields = requiredFields.filter(field => !req.body[field]);
-    
+    const requiredFields = ["datasetTitle", "category", "description", "price"];
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
     if (missingFields.length > 0) {
       return res.status(400).json({
         success: false,
-        message: `Missing required fields: ${missingFields.join(', ')}`
+        message: `Missing required fields: ${missingFields.join(", ")}`,
       });
     }
 
     // Process files only if they exist
-    const processFile = (file) => file ? {
-      url: file.path,
-      public_id: file.filename
-    } : null;
+    const processFile = (file) =>
+      file
+        ? {
+            url: file.path,
+            public_id: file.filename,
+          }
+        : null;
 
     const newDataset = new Dataset({
       ...req.body,
-      tags: req.body.tags?.split(',').map(tag => tag.trim()) || [],
+      tags: req.body.tags?.split(",").map((tag) => tag.trim()) || [],
       thumbnail: processFile(req.files?.thumbnail?.[0]),
       originalFiles: req.files?.originalFiles?.map(processFile) || [],
       samplePreview: processFile(req.files?.samplePreview?.[0]),
-      uploadedBy: req.user?.email
+      uploadedBy: req.user?.email,
     });
 
     await newDataset.save();
     res.status(201).json({ success: true, dataset: newDataset });
-
   } catch (err) {
-    console.error('DATABASE SAVE ERROR:', err);
+    console.error("DATABASE SAVE ERROR:", err);
     res.status(500).json({
       success: false,
-      message: 'Failed to save dataset',
-      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      message: "Failed to save dataset",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
     });
   }
 };
@@ -212,30 +212,34 @@ const deleteDatasetByID = async (req, res) => {
 const updateDatasetById = async (req, res) => {};
 
 const downloadDataset = async (req, res) => {
-try {
+  try {
     const dataset = await Dataset.findById(req.params.datasetId);
-    
+
     if (!dataset || !dataset.originalFiles[0]?.url) {
       return res.status(404).json({ error: "Dataset not found" });
     }
 
     const cloudinaryUrl = dataset.originalFiles[0].url;
-    
+
     // Fetch the file from Cloudinary
     const response = await axios.get(cloudinaryUrl, {
       responseType: "stream", // Stream the file instead of loading into memory
     });
 
     // Set proper download headers
-    res.setHeader("Content-Disposition", `attachment; filename="${dataset.title}"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${dataset.title}"`
+    );
     res.setHeader("Content-Type", response.headers["content-type"]);
-    
+
     // Pipe the file directly to the client
     response.data.pipe(res);
   } catch (error) {
     console.error("Download error:", error);
     res.status(500).json({ error: "Failed to download file" });
-  }; }
+  }
+};
 
 //   if (!purchase) {
 //     return res
@@ -280,6 +284,67 @@ const countByCategories = async (req, res) => {
   }
 };
 
+// Admin  controller
+
+const accessPendingData = async (req, res) => {
+  try {
+    const pendingDatasets = await Dataset.find({ status: "pending" }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json({ success: true, datasets: pendingDatasets });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+const updateDatasetStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!["approved", "rejected"].includes(status)) {
+    return res.status(400).json({ success: false, message: "Invalid status" });
+  }
+
+  try {
+    const updatedDataset = await Dataset.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedDataset) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Dataset not found" });
+    }
+
+    res.status(200).json({ success: true, dataset: updatedDataset });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+const getApprovedDatasets = async (req, res) => {
+  try {
+    const datasets = await Dataset.find({ status: "approved" });
+    res.status(200).json(datasets);
+  } catch (error) {
+    console.error("Error fetching approved datasets:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const getRejectedDatasets = async (req, res) => {
+  try {
+    const datasets = await Dataset.find({ status: 'rejected' }).sort({ updatedAt: -1 });
+    res.status(200).json(datasets);
+  } catch (error) {
+    console.error('Error fetching rejected datasets:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
 export {
   uploadDataset,
   accessAllDataset,
@@ -288,4 +353,8 @@ export {
   accessDatasetByID,
   downloadDataset,
   countByCategories,
+  accessPendingData,
+  updateDatasetStatus,
+  getApprovedDatasets,
+  getRejectedDatasets
 };

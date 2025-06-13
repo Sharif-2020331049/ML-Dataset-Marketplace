@@ -8,8 +8,7 @@ const purchaseSchema = new mongoose.Schema({
     required: true,
   },
   amount: { type: Number, required: true },
-  paymentMethod: String,
-  transactionId: String,
+  paymentId: String,
   purchaseDate: { type: Date, default: Date.now },
 });
 

@@ -188,29 +188,46 @@ const deleteDatasetByID = async (req, res) => {
 const updateDatasetById = async (req, res) => {};
 
 const downloadDataset = async (req, res) => {
-  const userId = req.user._id;
-  const datasetId = req.params.id;
+try {
+    const dataset = await Dataset.findById(req.params.datasetId);
+    
+    if (!dataset || !dataset.originalFiles[0]?.url) {
+      return res.status(404).json({ error: "Dataset not found" });
+    }
 
-  const purchase = await Purchase.findOne({
-    userId,
-    datasetId,
-  });
+    const cloudinaryUrl = dataset.originalFiles[0].url;
+    
+    // Fetch the file from Cloudinary
+    const response = await axios.get(cloudinaryUrl, {
+      responseType: "stream", // Stream the file instead of loading into memory
+    });
 
-  if (!purchase) {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "You must purchase this dataset first.",
-      });
-  }
+    // Set proper download headers
+    res.setHeader("Content-Disposition", `attachment; filename="${dataset.title}"`);
+    res.setHeader("Content-Type", response.headers["content-type"]);
+    
+    // Pipe the file directly to the client
+    response.data.pipe(res);
+  } catch (error) {
+    console.error("Download error:", error);
+    res.status(500).json({ error: "Failed to download file" });
+  }; }
 
-  const dataset = await Dataset.findById(datasetId);
-  res.status(200).json({
-    success: true,
-    originalFiles: dataset.originalFiles, // Direct download URLs
-  });
-};
+//   if (!purchase) {
+//     return res
+//       .status(403)
+//       .json({
+//         success: false,
+//         message: "You must purchase this dataset first.",
+//       });
+//   }
+
+//   const dataset = await Dataset.findById(datasetId);
+//   res.status(200).json({
+//     success: true,
+//     originalFiles: dataset.originalFiles, // Direct download URLs
+//   });
+// };
 
 const countByCategories = async (req, res) => {
   try {

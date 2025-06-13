@@ -58,41 +58,74 @@ const Payment = () => {
   };
 
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   const storedToken = localStorage.getItem('token');
+
+  //   if (!storedToken) {
+  //     toast.error("Please login first.");
+  //     navigate('/login')
+  //     return;
+
+  //   }
+
+  //   try {
+  //     const response = await axios.post(
+  //       '/dataset/payment',
+  //       { ...formData, datasetId: id },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${storedToken}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (response.data.success) {
+  //       window.location.href = response.data.session_url;
+  //     } else {
+  //       toast.error(response.data.message || "Payment failed.");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Something went wrong with payment.");
+  //     console.error(error);
+  //   } finally {
+  //     setIsLoading(false); // just in case the request fails
+  //   }
+  // };
+
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    const storedToken = localStorage.getItem('token');
+  e.preventDefault();
+  setIsLoading(true);
+  const storedToken = localStorage.getItem('token');
 
-    if (!storedToken) {
-      toast.error("Please login first.");
-      navigate('/login')
-      return;
+  if (!storedToken) {
+    toast.error("Please login first.");
+    navigate('/login');
+    return;
+  }
 
+  try {
+    const response = await axios.post(
+      'dataset/payment', 
+      { ...formData, datasetId: id },
+      { headers: { Authorization: `Bearer ${storedToken}` } }
+    );
+
+    if (response.data.success) {
+      // This will redirect to Stripe checkout
+      window.location.href = response.data.session_url;
+    } else {
+      toast.error(response.data.message || "Payment failed.");
     }
-
-    try {
-      const response = await axios.post(
-        '/dataset/payment',
-        { ...formData, datasetId: id },
-        {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        window.location.href = response.data.session_url;
-      } else {
-        toast.error(response.data.message || "Payment failed.");
-      }
-    } catch (error) {
-      toast.error("Something went wrong with payment.");
-      console.error(error);
-    } finally {
-      setIsLoading(false); // just in case the request fails
-    }
-  };
+  } catch (error) {
+    toast.error("Something went wrong with payment.");
+    console.error(error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50">

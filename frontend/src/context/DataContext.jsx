@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 export const DataContext = createContext();
 
 const DataContextProvider = (props)=>{
-    const [token, setToken] = useState("");
+    // In your DataContext.jsx or App.jsx
+const [token, setToken] = useState(localStorage.getItem('token') || "");
     const navigate = useNavigate();
 
     const value = {

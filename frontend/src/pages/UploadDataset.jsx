@@ -5,6 +5,8 @@ import { useRef } from 'react';
 import axios from '../api/axios.js';
 import { toast } from 'react-toastify';
 import { Loader2 } from 'lucide-react';
+import { useContext } from 'react';
+import { DataContext } from '../context/DataContext.jsx';
 
 const UploadDataset = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +17,7 @@ const UploadDataset = () => {
     tags: '',
     license: 'commercial',
   });
-
+  const { navigate } = useContext(DataContext)
   const thumbnailInputRef = useRef(null);
   const datasetInputRef = useRef(null);
   const previewInputRef = useRef(null);
@@ -78,14 +80,23 @@ const UploadDataset = () => {
       samplePreview.forEach(file => data.append("samplePreview", file));
     }
 
-    console.log("Files to upload:");
-    console.log("Thumbnail:", thumbnail);
-    console.log("Original files:", originalFiles);
-    console.log("Preview files:", samplePreview);
+    // console.log("Files to upload:");
+    // console.log("Thumbnail:", thumbnail);
+    // console.log("Original files:", originalFiles);
+    // console.log("Preview files:", samplePreview);
+ 
+    // return;
 
     try {
       setIsSubmitting(true);
       const token = localStorage.getItem("token"); // Assuming you store JWT here
+
+      if(!token) {
+        toast.error('You have to SignIn first!')
+        navigate('/login');
+        return
+
+      }
       const res = await axios.post("/dataset/upload", data, {
         headers: {
           "Content-Type": "multipart/form-data",

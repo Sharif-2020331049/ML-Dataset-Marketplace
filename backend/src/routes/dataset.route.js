@@ -7,6 +7,7 @@ import {
   deleteDatasetByID,
   downloadDataset,
   getApprovedDatasets,
+  getDatasetStats,
   getRejectedDatasets,
   updateDatasetById,
   updateDatasetStatus,
@@ -24,7 +25,7 @@ datasetRouter.get('/pending-dataset', accessPendingData)
 datasetRouter.patch('/update-status/:id', updateDatasetStatus);
 datasetRouter.get('/approved-dataset', getApprovedDatasets);
 datasetRouter.get('/rejected-dataset', getRejectedDatasets);
-// datasetRouter.get('/stats', getDatasetStats);
+datasetRouter.get('/stats', getDatasetStats);
 
 
 // router.post(

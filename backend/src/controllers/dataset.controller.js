@@ -336,14 +336,52 @@ const getApprovedDatasets = async (req, res) => {
 
 const getRejectedDatasets = async (req, res) => {
   try {
-    const datasets = await Dataset.find({ status: 'rejected' }).sort({ updatedAt: -1 });
+    const datasets = await Dataset.find({ status: "rejected" }).sort({
+      updatedAt: -1,
+    });
     res.status(200).json(datasets);
   } catch (error) {
-    console.error('Error fetching rejected datasets:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error fetching rejected datasets:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+const getDatasetStats = async (req, res) => {
+  try {
+    // 1. Count by status
+    const approved = await Dataset.countDocuments({ status: "approved" });
+    const pending = await Dataset.countDocuments({ status: "pending" });
+    const rejected = await Dataset.countDocuments({ status: "rejected" });
+
+    // 2. Group by category
+    const categoryStatsRaw = await Dataset.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          datasets: { $sum: 1 },
+          revenue: { $sum: "$price" }, // Assuming price is stored as number
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          datasets: 1,
+          revenue: 1,
+        },
+      },
+    ]);
+
+    // 3. Send response
+    res.json({
+      statusCounts: { approved, pending, rejected },
+      categoryStats: categoryStatsRaw,
+    });
+  } catch (error) {
+    console.error("Error getting dataset stats:", error);
+    res.status(500).json({ message: "Failed to fetch dataset statistics" });
+  }
+};
 
 export {
   uploadDataset,
@@ -356,5 +394,6 @@ export {
   accessPendingData,
   updateDatasetStatus,
   getApprovedDatasets,
-  getRejectedDatasets
+  getRejectedDatasets,
+  getDatasetStats
 };

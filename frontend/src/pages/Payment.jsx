@@ -58,41 +58,7 @@ const Payment = () => {
   };
 
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   const storedToken = localStorage.getItem('token');
-
-  //   if (!storedToken) {
-  //     toast.error("Please login first.");
-  //     navigate('/login')
-  //     return;
-
-  //   }
-
-  //   try {
-  //     const response = await axios.post(
-  //       '/dataset/payment',
-  //       { ...formData, datasetId: id },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${storedToken}`,
-  //         },
-  //       }
-  //     );
-
-  //     if (response.data.success) {
-  //       window.location.href = response.data.session_url;
-  //     } else {
-  //       toast.error(response.data.message || "Payment failed.");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Something went wrong with payment.");
-  //     console.error(error);
-  //   } finally {
-  //     setIsLoading(false); // just in case the request fails
-  //   }
-  // };
+ 
 
 
   const handleSubmit = async (e) => {
@@ -108,7 +74,7 @@ const Payment = () => {
 
   try {
     const response = await axios.post(
-      'dataset/payment', 
+      '/purchase/payment', 
       { ...formData, datasetId: id },
       { headers: { Authorization: `Bearer ${storedToken}` } }
     );

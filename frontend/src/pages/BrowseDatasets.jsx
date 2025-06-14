@@ -15,6 +15,7 @@ const BrowseDatasets = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [datasets, setDatasets] = useState([])
+  const [filteredDatasets, setFilteredDatasets] = useState([]);
 
   useEffect(() => {
     fetchDatasets();
@@ -32,12 +33,127 @@ const BrowseDatasets = () => {
   //   }
   // };
 
+  // console.log(datasets);
+
+
+  // useEffect(() => {
+  //   const newDatasets = datasets.filter(dataset => dataset.category.toLowerCase() === selectedCategory.toLowerCase() || selectedCategory === "all");
+  //   setFilteredDatasets(newDatasets);
+  // }, [priceRange, selectedCategory, sortBy]);
+
+//   useEffect(() => {
+//   let filtered = [...datasets];
+
+//   // Filter by category
+//   if (selectedCategory !== 'all') {
+//     filtered = filtered.filter(dataset => 
+//       dataset.category.toLowerCase() === selectedCategory.toLowerCase()
+//     );
+//   }
+
+//   // Filter by price range
+//   if (priceRange !== 'all') {
+//     filtered = filtered.filter(dataset => {
+//       switch (priceRange) {
+//         case 'free':
+//           return dataset.price === 0;
+//         case '0-100':
+//           return dataset.price > 0 && dataset.price <= 100;
+//         case '100-300':
+//           return dataset.price > 100 && dataset.price <= 300;
+//         case '300+':
+//           return dataset.price > 300;
+//         default:
+//           return true;
+//       }
+//     });
+//   }
+
+//   // Sort the datasets
+//   filtered.sort((a, b) => {
+//     switch (sortBy) {
+//       case 'newest':
+//         return new Date(b.createdAt) - new Date(a.createdAt);
+//       case 'popular':
+//         return (b.downloads || 0) - (a.downloads || 0);
+//       case 'price-low':
+//         return a.price - b.price;
+//       case 'price-high':
+//         return b.price - a.price;
+//       default:
+//         return 0;
+//     }
+//   });
+
+//   setFilteredDatasets(filtered);
+// }, [datasets, priceRange, selectedCategory, sortBy]);
+
+
+
+useEffect(() => {
+  let filtered = [...datasets];
+
+  // Search filter
+  if (searchQuery) {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter(dataset => 
+      dataset.datasetTitle.toLowerCase().includes(query) || 
+      dataset.description.toLowerCase().includes(query) ||
+      (dataset.tags && dataset.tags.some(tag => tag.toLowerCase().includes(query)))
+    );
+  }
+
+  // Filter by category
+  if (selectedCategory !== 'all') {
+    filtered = filtered.filter(dataset => 
+      dataset.category.toLowerCase() === selectedCategory.toLowerCase()
+    );
+  }
+
+  // Filter by price range
+  if (priceRange !== 'all') {
+    filtered = filtered.filter(dataset => {
+      switch (priceRange) {
+        case 'free':
+          return dataset.price === 0;
+        case '0-100':
+          return dataset.price > 0 && dataset.price <= 100;
+        case '100-300':
+          return dataset.price > 100 && dataset.price <= 300;
+        case '300+':
+          return dataset.price > 300;
+        default:
+          return true;
+      }
+    });
+  }
+
+  // Sort the datasets
+  filtered.sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'popular':
+        return (b.downloads || 0) - (a.downloads || 0);
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      default:
+        return 0;
+    }
+  });
+
+  setFilteredDatasets(filtered);
+}, [datasets, searchQuery, priceRange, selectedCategory, sortBy]);
+
   const fetchDatasets = async () => {
     try {
       setLoading(true)
       const response = await axios.get(`/dataset/access?page=${page}`);
       if (response.data.success) {
         setDatasets(response.data.datasets);
+        setFilteredDatasets(response.data.datasets);
         setTotalPages(response.data.totalPages);
       }
     } catch (err) {
@@ -97,7 +213,7 @@ const BrowseDatasets = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">All Categories</option>
-                  <option value="image">Images</option>
+                  <option value="images">Images</option>
                   <option value="audio">Audio</option>
                   <option value="video">Video</option>
                   <option value="text">Text</option>
@@ -173,7 +289,7 @@ const BrowseDatasets = () => {
               </div>
             ) : (
               <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
-                {datasets.map((dataset) => (
+                {filteredDatasets.map((dataset) => (
                   <DatasetCard
                     key={dataset._id}
                     id={dataset._id}

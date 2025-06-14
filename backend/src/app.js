@@ -14,6 +14,6 @@ app.use('/api/v1/user', userRouter)
 app.use('/api/v1/dataset', datasetRouter)
 app.use('/api/v1/purchase', purchaseRouter)
 // app.js or index.js
-app.use('/api', adminRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 export { app }

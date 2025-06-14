@@ -48,8 +48,10 @@ const registerAdmin = asyncHandler(async (req, res) => {
 /**
  * Log in an existing admin
  */
-const loginAdmin = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+const loginAdmin = async (req, res) => {
+ try {
+  
+    const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ success: false, message: "Email and password are required" });
@@ -68,27 +70,33 @@ const loginAdmin = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(admin._id);
 
   // Set secure = true only in production
-  const isProduction = process.env.NODE_ENV === 'production';
+  // const isProduction = process.env.NODE_ENV === 'production';
 
   res
     .status(200)
-    .cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: isProduction,    // <-- false in dev, true in prod
-      sameSite: "Strict",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    })
-    .cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: "Strict",
-      maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
-    })
+    // .cookie("accessToken", accessToken, {
+    //   httpOnly: true,
+    //   secure: isProduction,    // <-- false in dev, true in prod
+    //   sameSite: "Strict",
+    //   maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    // })
+    // .cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   secure: isProduction,
+    //   sameSite: "Strict",
+    //   maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+    // })
     .json({
       success: true,
       token: accessToken,
       message: "Admin logged in successfully!",
     });
-});
+
+ } catch (error) {
+    console.log(error);
+    res.json({success: false, message: "Failed in Admin login "})
+    
+ }
+};
 
 export { registerAdmin, loginAdmin };

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { Input } from '../components/ui/input.jsx';
 import { Database } from 'lucide-react';
+import axios from '../api/axios.js';
 
 const AdminSignIn = () => {
   const [email, setEmail] = useState('');
@@ -18,14 +18,16 @@ const AdminSignIn = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/api/admin/login',
+        '/admin/login',
         { email, password },
-        { withCredentials: true }
+        { withCredentials: false }
       );
 
       if (response.data?.success) {
+        
         localStorage.setItem('adminToken', response.data.token);
-        navigate('/admin/dashboard'); // Adjust path as needed
+           console.log(response.data.token);
+        navigate('/'); // Adjust path as needed
       } else {
         setError('Login failed');
       }

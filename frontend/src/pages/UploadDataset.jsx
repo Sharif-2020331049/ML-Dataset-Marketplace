@@ -442,26 +442,6 @@ const UploadDataset = () => {
                 </Button>
               </div>
 
-              {/* 
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full flex items-center justify-center gap-2"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Redirecting to Stripe...
-                  </>
-                ) : (
-                  `Pay with Stripe - $${dataset?.price}`
-                )}
-              </Button> */}
-
-
-
-
 
             </form>
           </div>

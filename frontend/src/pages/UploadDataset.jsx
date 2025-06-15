@@ -50,76 +50,247 @@ const UploadDataset = () => {
     setSamplePreview(null);
   };
 
-
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  
+  //   if (
+  //     !formData.datasetTitle ||
+  //     !formData.category ||
+  //     !formData.description ||
+  //     !formData.price ||
+  //     !thumbnail ||
+  //     !originalFiles?.length
+  //   ) {
+  //     toast.error("Please fill in all required fields and upload required files.");
+  //     return;
+  //   }
+  
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     toast.error("You have to SignIn first!");
+  //     navigate("/login");
+  //     return;
+  //   }
+  
+  //   setIsSubmitting(true);
+  
+  //   try {
+  //     // Step 1: Get the uploaded ZIP file
+  //     const originalZip = originalFiles[0];
+  
+  //     if (!originalZip.name.endsWith(".zip")) {
+  //       toast.error("Original file must be a .zip archive.");
+  //       setIsSubmitting(false);
+  //       return;
+  //     }
+  
+  //     const uploadForm = new FormData();
+  //     uploadForm.append("archive", originalZip);
+  
+  //     const uploadRes = await axios.post("/archive/upload", uploadForm, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  
+  //     const uploadedId = uploadRes.data?.id;
+  //     console.log(uploadedId);//here//
+  //     if (!uploadedId) {
+  //       toast.error("Failed to upload original file.");
+  //       setIsSubmitting(false);
+  //       return;
+  //     }
+  
+  //     // Step 2: Submit full dataset with originalFileId
+  //     const datasetForm = new FormData();
+  //     Object.entries(formData).forEach(([key, value]) => {
+  //       datasetForm.append(key, value);
+  //     });
+  
+  //     datasetForm.append("thumbnail", thumbnail);
+  
+  //     if (samplePreview?.length > 0) {
+  //       samplePreview.forEach(file => datasetForm.append("samplePreview", file));
+  //     }
+  
+  //     datasetForm.append("originalFileId", uploadedId);
+  
+  //     const datasetRes = await axios.post("/dataset/upload", datasetForm, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  
+  //     toast.success("Dataset uploaded successfully!");
+  //     resetForm();
+  //     console.log("Dataset response:", datasetRes.data);
+  
+  //   } catch (error) {
+  //     console.error("Upload failed:", error.response?.data || error.message);
+  //     toast.error("Upload failed");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log('Form submitted:', formData, originalFiles, samplePreview, thumbnail);
-
-    if (!formData.datasetTitle || !formData.category || !formData.description || !formData.price || !thumbnail || !originalFiles) {
+  
+    if (
+      !formData.datasetTitle ||
+      !formData.category ||
+      !formData.description ||
+      !formData.price ||
+      !thumbnail ||
+      !originalFiles?.length
+    ) {
       toast.error("Please fill in all required fields and upload required files.");
       return;
     }
-    // if (!window.confirm('Are you sure you want to submit this dataset for review?')) return;
-
-    // Handle form submission logic here
-    const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      data.append(key, value);
-
-    });
-
-    if (thumbnail) data.append("thumbnail", thumbnail);
-    if (originalFiles && originalFiles.length > 0) {
-      originalFiles.forEach(file => data.append("originalFiles", file));
+  
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("You have to SignIn first!");
+      navigate("/login");
+      return;
     }
-
-
-
-    // Safely append preview files if they exist
-    if (samplePreview && samplePreview.length > 0) {
-      samplePreview.forEach(file => data.append("samplePreview", file));
-    }
-
-    // console.log("Files to upload:");
-    // console.log("Thumbnail:", thumbnail);
-    // console.log("Original files:", originalFiles);
-    // console.log("Preview files:", samplePreview);
- 
-    // return;
-
+  
+    setIsSubmitting(true);
+  
     try {
-      setIsSubmitting(true);
-      const token = localStorage.getItem("token"); // Assuming you store JWT here
-
-      if(!token) {
-        toast.error('You have to SignIn first!')
-        navigate('/login');
-        return
-
+      // Step 1: Get the uploaded ZIP file
+      const originalZip = originalFiles[0];
+  
+      if (!originalZip.name.endsWith(".zip")) {
+        toast.error("Original file must be a .zip archive.");
+        setIsSubmitting(false);
+        return;
       }
-      const res = await axios.post("/dataset/upload", data, {
+  
+      const uploadForm = new FormData();
+      uploadForm.append("archive", originalZip);
+  
+      const uploadRes = await axios.post("/archive/upload", uploadForm, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
-        // onUploadProgress: (progressEvent) => {
-        //   const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        //   toast.info(`Uploading: ${percent}%`);
-        // },
       });
-      console.log("Upload success:", res.data);
+  
+      // Fix here: use fileId instead of id
+      const uploadedId = uploadRes.data?.fileId;
+      console.log(uploadedId); // Should log the uploaded file ID now
+  
+      if (!uploadedId) {
+        toast.error("Failed to upload original file.");
+        setIsSubmitting(false);
+        return;
+      }
+  
+      // Step 2: Submit full dataset with originalFileId
+      const datasetForm = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        datasetForm.append(key, value);
+      });
+  
+      datasetForm.append("thumbnail", thumbnail);
+  
+      if (samplePreview?.length > 0) {
+        samplePreview.forEach(file => datasetForm.append("samplePreview", file));
+      }
+  
+      datasetForm.append("originalFileId", uploadedId);
+  
+      const datasetRes = await axios.post("/dataset/upload", datasetForm, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
       toast.success("Dataset uploaded successfully!");
-      resetForm()
+      resetForm();
+      console.log("Dataset response:", datasetRes.data);
+  
     } catch (error) {
-      console.error("Upload failed:", error);
       console.error("Upload failed:", error.response?.data || error.message);
       toast.error("Upload failed");
     } finally {
       setIsSubmitting(false);
     }
-
-
   };
+  
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   // console.log('Form submitted:', formData, originalFiles, samplePreview, thumbnail);
+
+  //   if (!formData.datasetTitle || !formData.category || !formData.description || !formData.price || !thumbnail || !originalFiles) {
+  //     toast.error("Please fill in all required fields and upload required files.");
+  //     return;
+  //   }
+  //   // if (!window.confirm('Are you sure you want to submit this dataset for review?')) return;
+
+  //   // Handle form submission logic here
+  //   const data = new FormData();
+  //   Object.entries(formData).forEach(([key, value]) => {
+  //     data.append(key, value);
+
+  //   });
+
+  //   if (thumbnail) data.append("thumbnail", thumbnail);
+  //   if (originalFiles && originalFiles.length > 0) {
+  //     originalFiles.forEach(file => data.append("originalFiles", file));
+  //   }
+
+
+
+  //   // Safely append preview files if they exist
+  //   if (samplePreview && samplePreview.length > 0) {
+  //     samplePreview.forEach(file => data.append("samplePreview", file));
+  //   }
+
+  //   // console.log("Files to upload:");
+  //   // console.log("Thumbnail:", thumbnail);
+  //   // console.log("Original files:", originalFiles);
+  //   // console.log("Preview files:", samplePreview);
+ 
+  //   // return;
+
+  //   try {
+  //     setIsSubmitting(true);
+  //     const token = localStorage.getItem("token"); // Assuming you store JWT here
+
+  //     if(!token) {
+  //       toast.error('You have to SignIn first!')
+  //       navigate('/login');
+  //       return
+
+  //     }
+  //     const res = await axios.post("/dataset/upload", data, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       // onUploadProgress: (progressEvent) => {
+  //       //   const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+  //       //   toast.info(`Uploading: ${percent}%`);
+  //       // },
+  //     });
+  //     console.log("Upload success:", res.data);
+  //     toast.success("Dataset uploaded successfully!");
+  //     resetForm()
+  //   } catch (error) {
+  //     console.error("Upload failed:", error);
+  //     console.error("Upload failed:", error.response?.data || error.message);
+  //     toast.error("Upload failed");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+
+
+  // };
 
 
   return (

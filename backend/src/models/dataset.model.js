@@ -32,25 +32,32 @@ const datasetSchema = new Schema(
       public_id: { type: String, required: true },
     },
     uploadedBy: {
-      // type: mongoose.Schema.Types.ObjectId,
-      // ref: "User", // Assuming you have a user schema
-      // required: true,
+      type: String, // Consider switching to ObjectId if users are added later
+      required: true,
+    },
+
+    // ❌ Remove this
+    // originalFiles: [
+    //   {
+    //     url: { type: String, required: true },
+    //     public_id: { type: String, required: true },
+    //   },
+    // ],
+
+    // ✅ Replace with single reference ID
+    originalFileId: {
       type: String,
       required: true,
     },
-    originalFiles: [
-      {
-        url: { type: String, required: true },
-        public_id: { type: String, required: true },
-      },
-    ],
+
     samplePreview: {
       url: { type: String, required: true },
       public_id: { type: String, required: true },
     },
+
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"], // added 'rejected'
+      enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
   },

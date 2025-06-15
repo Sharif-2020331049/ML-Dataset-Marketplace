@@ -5,6 +5,8 @@ import datasetRouter from './routes/dataset.route.js'
 import purchaseRouter from './routes/purchase.route.js'
 import adminRoutes from './routes/admin.route.js';
 import aiRoutes from './routes/aiRoutes.js';
+import mongoRoutes from './routes/mongodb.route.js'
+
 const app = express()
 
 // Middlewares 

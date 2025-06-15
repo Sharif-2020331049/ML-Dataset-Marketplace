@@ -20,6 +20,27 @@ const RejectedDatasets = ({ onReview }) => {
     }
   };
 
+
+
+  const [restoringId, setRestoringId] = useState(null);
+
+  const handleStatusUpdate = async (id, status) => {
+    try {
+      setRestoringId(id);
+      await axios.patch(`/dataset/update-status/${id}`, { status });
+
+      // Update local state by removing the restored dataset
+      setRejectedDatasets(prev => prev.filter(dataset => dataset._id !== id));
+
+      toast.success("Dataset restored as a Pending dataset");
+    } catch (err) {
+      toast.error("Failed to restore dataset");
+      console.error(err);
+    } finally {
+      setRestoringId(null);
+    }
+  };
+
   useEffect(() => {
     fetchRejected();
   }, []);
@@ -69,7 +90,13 @@ const RejectedDatasets = ({ onReview }) => {
                       <Eye className="h-4 w-4 mr-1" />
                       Review
                     </Button>
-                    <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700"
+                      onClick={() => handleStatusUpdate(dataset._id, 'pending')}
+                      disabled={restoringId === dataset._id}
+                    >
                       <Check className="h-4 w-4 mr-1" />
                       Restore
                     </Button>
@@ -84,7 +111,7 @@ const RejectedDatasets = ({ onReview }) => {
   );
 };
 
-export  {RejectedDatasets};
+export { RejectedDatasets };
 
 
 

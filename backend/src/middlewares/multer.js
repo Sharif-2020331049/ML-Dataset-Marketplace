@@ -50,33 +50,33 @@ const upload = multer({
     fileSize: 1024 * 1024 * 1024, // 1GB
     files: 10, // Max files per field
   },
-  fileFilter: (req, file, cb) => {
-    // Thumbnail - Only images
-    if (file.fieldname === "thumbnail") {
-      if (file.mimetype.startsWith("image/")) {
-        return cb(null, true);
-      }
-      return cb(new Error("Thumbnail must be an image (JPEG/PNG)"), false);
-    }
+  // fileFilter: (req, file, cb) => {
+  //   // Thumbnail - Only images
+  //   if (file.fieldname === "thumbnail") {
+  //     if (file.mimetype.startsWith("image/")) {
+  //       return cb(null, true);
+  //     }
+  //     return cb(new Error("Thumbnail must be an image (JPEG/PNG)"), false);
+  //   }
 
-    // Original Files - Strict extensions
-    if (file.fieldname === "originalFiles") {
-      const allowed = [".zip", ".csv", ".json", ".tar"];
-      const ext = path.extname(file.originalname).toLowerCase();
+  //   // Original Files - Strict extensions
+  //   // if (file.fieldname === "originalFiles") {
+  //   //   const allowed = [".zip", ".csv", ".json", ".tar"];
+  //   //   const ext = path.extname(file.originalname).toLowerCase();
 
-      if (allowed.includes(ext)) {
-        return cb(null, true);
-      }
-      return cb(new Error("Only ZIP/CSV/JSON/TAR files allowed"), false);
-    }
+  //   //   if (allowed.includes(ext)) {
+  //   //     return cb(null, true);
+  //   //   }
+  //   //   return cb(new Error("Only ZIP/CSV/JSON/TAR files allowed"), false);
+  //   // }
 
-    // Previews - More flexible
-    if (file.fieldname === "samplePreview") {
-      return cb(null, true); // Allow all for previews
-    }
+  //   // Previews - More flexible
+  //   if (file.fieldname === "samplePreview") {
+  //     return cb(null, true); // Allow all for previews
+  //   }
 
-    return cb(new Error("Unexpected file field"), false);
-  },
+  //   return cb(new Error("Unexpected file field"), false);
+  // },
 });
 
 const handleUploadErrors = (err, req, res, next) => {

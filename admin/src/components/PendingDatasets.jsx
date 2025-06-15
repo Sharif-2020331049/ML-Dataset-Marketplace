@@ -77,7 +77,7 @@ const PendingDatasets = ({ onReview }) => {
                 <TableCell>{new Date(dataset.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell className="font-medium">${dataset.price}</TableCell>
                 <TableCell>
-                  <div className="flex space-x-2">
+                  {/* <div className="flex space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -98,6 +98,96 @@ const PendingDatasets = ({ onReview }) => {
                     <Button
                       variant="destructive"
                       size="sm"
+                      className="bg-red-600 hover:bg-red-700"
+                      onClick={() => handleStatusUpdate(dataset._id, 'rejected')}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Reject           
+                    </Button>
+                  </div> */}
+
+                  {/* <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onReview(dataset)}
+                    className="flex-1 min-w-[100px]"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Review
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white flex-1 min-w-[100px]"
+                    onClick={() => handleStatusUpdate(dataset._id, 'approved')}
+                  >
+                    <Check className="h-4 w-4 mr-1" />
+                    Approve
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="bg-rose-500 hover:bg-rose-600 text-white flex-1 min-w-[100px]"
+                    onClick={() => handleStatusUpdate(dataset._id, 'rejected')}
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Reject
+                  </Button>
+                  </div> */}
+
+
+                  {/* <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onReview(dataset)}
+                      className="flex-1 min-w-[100px] border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      Review
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="flex-1 min-w-[100px] bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => handleStatusUpdate(dataset._id, 'approved')}
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex-1 min-w-[100px] bg-red-600 hover:bg-red-700 text-white"
+                      onClick={() => handleStatusUpdate(dataset._id, 'rejected')}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Reject
+                    </Button>
+                  </div> */}
+
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onReview(dataset)}
+                      className="flex-1 min-w-[100px] border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-600"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      Review
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="flex-1 min-w-[100px] bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => handleStatusUpdate(dataset._id, 'approved')}
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="flex-1 min-w-[100px] bg-red-600 hover:bg-red-700 text-white"
                       onClick={() => handleStatusUpdate(dataset._id, 'rejected')}
                     >
                       <X className="h-4 w-4 mr-1" />

@@ -1,71 +1,6 @@
 import { Dataset } from "../models/dataset.model.js";
 import { Purchase } from "../models/purchase.model.js";
-
-// const uploadDataset = async (req, res) => {
-//   try {
-//     const { datasetTitle, category, description, tags, price, license } =
-//       req.body;
-
-//     const uploadedBy = req.user?.email;
-//     const thumbnailFile = req.files.thumbnail?.[0];
-
-//     const thumbnail = {
-//       url: thumbnailFile?.path,
-//       public_id: thumbnailFile?.filename,
-//     };
-//     const originalFiles =
-//       req.files.originalFiles?.map((file) => ({
-//         url: file.path,
-//         public_id: file.filename,
-//       })) || [];
-
-//     const sampleFile = req.files.samplePreview?.[0];
-
-//     const samplePreview = {
-//       url: sampleFile?.path,
-//       public_id: sampleFile?.filename,
-//     };
-
-//     // console.log("Sample Preview: ");
-//     // console.log(samplePreview);
-//     // console.log("thumbnail file");
-//     // console.log(thumbnail);
-
-//     const newDataset = new Dataset({
-//       datasetTitle,
-//       category,
-//       license,
-//       description,
-//       tags: tags.split(",").map((tag) => tag.trim()),
-//       price,
-//       thumbnail,
-//       uploadedBy,
-//       originalFiles,
-//       samplePreview,
-//     });
-
-//     await newDataset.save();
-
-//     console.log(newDataset);
-
-//     res.status(201).json({ success: true, dataset: newDataset });
-
-//     // res.json({success: true, message: "It's good till now"})
-//   } catch (err) {
-//     console.error("UPLOAD ERROR:", err);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Server Error", error: err.message });
-//     res
-//       .status(500)
-//       .json({
-//         success: false,
-//         message: "Server Error",
-//         error: err.message,
-//         stack: err.stack,
-//       });
-//   }
-// };
+import { User } from "../models/user.model.js";
 
 const uploadDataset = async (req, res) => {
   try {
@@ -104,8 +39,12 @@ const uploadDataset = async (req, res) => {
       uploadedBy: req.user?.email,
     });
 
-    await newDataset.save();
-    res.status(201).json({ success: true, dataset: newDataset });
+   const dataset =  await newDataset.save();
+
+    const user = await User.findById(req.user?._id);
+    await user.addUpload(dataset?._id);
+
+    res.status(201).json({ success: true, dataset: dataset });
   } catch (err) {
     console.error("DATABASE SAVE ERROR:", err);
     res.status(500).json({
@@ -299,28 +238,46 @@ const accessPendingData = async (req, res) => {
 
 const updateDatasetStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, rejectionReason } = req.body;
 
-  if (!["approved", "rejected"].includes(status)) {
+  // Validate status
+  if (!["approved", "rejected", "pending"].includes(status)) {
     return res.status(400).json({ success: false, message: "Invalid status" });
   }
 
   try {
-    const updatedDataset = await Dataset.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    const updateData = { status };
 
-    if (!updatedDataset) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Dataset not found" });
+    // Clear rejection reason when status changes to pending/approved
+    if (status === "pending" || status === "approved") {
+      updateData.rejectionReason = null;
     }
 
-    res.status(200).json({ success: true, dataset: updatedDataset });
+    // Set rejection reason if provided
+    if (status === "rejected" && rejectionReason) {
+      updateData.rejectionReason = rejectionReason;
+    }
+
+    const updatedDataset = await Dataset.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    if (!updatedDataset) {
+      return res.status(404).json({
+        success: false,
+        message: "Dataset not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      dataset: updatedDataset,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
@@ -395,5 +352,72 @@ export {
   updateDatasetStatus,
   getApprovedDatasets,
   getRejectedDatasets,
-  getDatasetStats
+  getDatasetStats,
+  // deleteFile
 };
+
+// const uploadDataset = async (req, res) => {
+//   try {
+//     const { datasetTitle, category, description, tags, price, license } =
+//       req.body;
+
+//     const uploadedBy = req.user?.email;
+//     const thumbnailFile = req.files.thumbnail?.[0];
+
+//     const thumbnail = {
+//       url: thumbnailFile?.path,
+//       public_id: thumbnailFile?.filename,
+//     };
+//     const originalFiles =
+//       req.files.originalFiles?.map((file) => ({
+//         url: file.path,
+//         public_id: file.filename,
+//       })) || [];
+
+//     const sampleFile = req.files.samplePreview?.[0];
+
+//     const samplePreview = {
+//       url: sampleFile?.path,
+//       public_id: sampleFile?.filename,
+//     };
+
+//     // console.log("Sample Preview: ");
+//     // console.log(samplePreview);
+//     // console.log("thumbnail file");
+//     // console.log(thumbnail);
+
+//     const newDataset = new Dataset({
+//       datasetTitle,
+//       category,
+//       license,
+//       description,
+//       tags: tags.split(",").map((tag) => tag.trim()),
+//       price,
+//       thumbnail,
+//       uploadedBy,
+//       originalFiles,
+//       samplePreview,
+//     });
+
+//     await newDataset.save();
+
+//     console.log(newDataset);
+
+//     res.status(201).json({ success: true, dataset: newDataset });
+
+//     // res.json({success: true, message: "It's good till now"})
+//   } catch (err) {
+//     console.error("UPLOAD ERROR:", err);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Server Error", error: err.message });
+//     res
+//       .status(500)
+//       .json({
+//         success: false,
+//         message: "Server Error",
+//         error: err.message,
+//         stack: err.stack,
+//       });
+//   }
+// };

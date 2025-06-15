@@ -7,7 +7,7 @@ import Index from "./pages/Index.jsx";
 import SignIn from "./pages/SignIn.jsx";
 import UserDetails from "./pages/UserDetails.jsx";
 import NotFound from "./pages/NotFound";
-
+import { ToastContainer } from 'react-toastify';
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }) => {
@@ -17,9 +17,18 @@ const ProtectedRoute = ({ children }) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    {/* <TooltipProvider> */}
-      {/* <Toaster /> */}
-      {/* <Sonner /> */}
+       <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <BrowserRouter>
         <Routes>
           <Route path="/signin" element={<SignIn />} />
@@ -42,7 +51,6 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    {/* </TooltipProvider> */}
   </QueryClientProvider>
 );
 

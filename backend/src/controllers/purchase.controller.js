@@ -63,6 +63,7 @@ import { Dataset } from "../models/dataset.model.js";
 import { Purchase } from "../models/purchase.model.js";
 import Stripe from "stripe";
 import dotenv from "dotenv";
+import { User } from "../models/user.model.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -170,6 +171,10 @@ const handlePaymentSuccess = async (req, res) => {
     const { datasetId } = session.metadata;
     const downloadLink = `/api/datasets/download/${datasetId}`; // Use the new endpoint
 
+
+    const user = await User.findById(req.user?._id);
+    await user.addPurchase(datasetId);
+    
     res.json({
       success: true,
       downloadLink, // This now points to your server, not Cloudinary directly

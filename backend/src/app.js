@@ -19,5 +19,6 @@ app.use('/api/v1/purchase', purchaseRouter)
 // app.js or index.js
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/ai', aiRoutes);
+app.use('/api/v1/archive', mongoRoutes);
 
 export { app }

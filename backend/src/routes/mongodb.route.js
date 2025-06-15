@@ -10,7 +10,7 @@ const inMemoryStorage = multer.memoryStorage();
 const fileUploader = multer({ storage: inMemoryStorage });
 
 // Route to handle uploading ZIP archives to GridFS
-router.post('/archive/upload', fileUploader.single('archive'), (req, res) => {
+router.post('/upload', fileUploader.single('archive'), (req, res) => {
   const zipFile = req.file;
 
   // Reject if file is missing or is not a .zip
@@ -43,7 +43,7 @@ router.post('/archive/upload', fileUploader.single('archive'), (req, res) => {
 });
 
 // Route to download a ZIP file using its ObjectId
-router.get('/archive/download/:fileId', async (req, res) => {
+router.get('/download/:fileId', async (req, res) => {
   try {
     const gridBucket = getGFSBucket();
     const fileObjectId = new mongoose.Types.ObjectId(req.params.fileId);

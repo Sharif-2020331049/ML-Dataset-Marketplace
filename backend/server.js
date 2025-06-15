@@ -1,27 +1,19 @@
-import { app } from "./src/app.js";
 import dotenv from "dotenv";
+import { app } from "./src/app.js";
 import { connectDB } from "./src/config/db.js";
+import { initGridFS } from "./src/cloud/mongodbstore.js"; // ✅ Missing import added
 
-dotenv.config(
-    {
-        path: './env'
-    }
-)
+dotenv.config({ path: './env' });
 
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 8000; // ✅ Move PORT before usage
 
 connectDB()
-.then(
-    ()=>{
-        app.listen(PORT, ()=>{
-        console.log(`Server is running on port ${PORT}...`);
-            
-        })
-    }
-)
-.catch(
-    (err)=>{
-        console.log('MongoDB connection failed', err);
-    }
-    
-)
+  .then(() => {
+    initGridFS(); // ✅ Initialize GridFS after DB is connected
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}...`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Failed to start server:", err);
+  });

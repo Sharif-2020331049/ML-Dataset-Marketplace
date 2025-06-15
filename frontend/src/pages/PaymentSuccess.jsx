@@ -156,7 +156,7 @@ const PaymentSuccess = () => {
           throw new Error('Missing session ID');
         }
 
-        const response = await axios.get(`dataset/payment/success?session_id=${sessionId}`, {
+        const response = await axios.get(`/purchase/payment/success?session_id=${sessionId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }

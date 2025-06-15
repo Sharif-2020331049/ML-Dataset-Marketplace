@@ -4,6 +4,7 @@ import userRouter from './routes/user.route.js'
 import datasetRouter from './routes/dataset.route.js'
 import purchaseRouter from './routes/purchase.route.js'
 import adminRoutes from './routes/admin.route.js';
+import aiRoutes from './routes/aiRoutes.js';
 const app = express()
 
 // Middlewares 
@@ -15,5 +16,6 @@ app.use('/api/v1/dataset', datasetRouter)
 app.use('/api/v1/purchase', purchaseRouter)
 // app.js or index.js
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/ai', aiRoutes);
 
 export { app }

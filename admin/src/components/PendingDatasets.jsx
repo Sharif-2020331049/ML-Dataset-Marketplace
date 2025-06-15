@@ -5,7 +5,7 @@ import { Button } from './ui/button.jsx';
 import { Badge } from './ui/badge.jsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table.jsx';
 import { Eye, Check, X } from 'lucide-react';
-import { accessPendingData } from '../../../backend/src/controllers/dataset.controller.js';
+import { toast } from 'react-toastify';
 
 const PendingDatasets = ({ onReview }) => {
   const [pendingDatasets, setPendingDatasets] = useState([]);
@@ -13,7 +13,7 @@ const PendingDatasets = ({ onReview }) => {
   useEffect(() => {
     const fetchPending = async () => {
       try {
-        const res = await axios.get('/dataset/pending-dataset', accessPendingData);
+        const res = await axios.get('/dataset/pending-dataset');
         console.log(res.data.datasets);
 
         setPendingDatasets(res.data.datasets);
@@ -28,7 +28,10 @@ const PendingDatasets = ({ onReview }) => {
     try {
       await axios.patch(`/dataset/update-status/${id}`, { status });
       setPendingDatasets(prev => prev.filter(dataset => dataset._id !== id));
+      console.log("Approved successfully")
+       toast.success(`Dataset ${status} successfully!`);
     } catch (err) {
+      toast.error(`Failed to ${status} dataset`);
       console.error(err);
     }
   };

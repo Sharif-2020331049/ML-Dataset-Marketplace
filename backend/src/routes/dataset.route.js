@@ -28,32 +28,11 @@ datasetRouter.get('/rejected-dataset', getRejectedDatasets);
 datasetRouter.get('/stats', getDatasetStats);
 
 
-// router.post(
+// datasetRouter.post(
 //   "/upload",
-//   upload.fields([
-//     { name: "thumbnail", maxCount: 1 },
-//     { name: "originalFiles", maxCount: 10 },
-//     { name: "samplePreview", maxCount: 5 },
-//   ]),
-//   handleUploadErrors,
-//   async (req, res) => {
-//     try {
-//       // Files are now in req.files
-//       const { thumbnail, originalFiles, samplePreview } = req.files;
-
-//       // Example response
-//       res.status(200).json({
-//         success: true,
-//         thumbnail: thumbnail[0].path, // Cloudinary URL
-//         datasetFiles: originalFiles.map(file => file.path),
-//         previews: samplePreview?.map(file => file.path) || [],
-//       });
-//     } catch (error) {
-//       res.status(500).json({ error: "Server error", details: error.message });
-//     }
-//   }
+//   jwtVerify,
+//   uploadDataset
 // );
-
 
 datasetRouter.post(
   "/upload",

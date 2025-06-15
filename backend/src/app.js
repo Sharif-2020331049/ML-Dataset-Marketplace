@@ -6,6 +6,7 @@ import purchaseRouter from './routes/purchase.route.js'
 import adminRoutes from './routes/admin.route.js';
 import aiRoutes from './routes/aiRoutes.js';
 import mongoRoutes from './routes/mongodb.route.js'
+
 const app = express()
 
 // Middlewares 
@@ -19,4 +20,5 @@ app.use('/api/v1/purchase', purchaseRouter)
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/archive', mongoRoutes);
+
 export { app }

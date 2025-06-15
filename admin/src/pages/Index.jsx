@@ -1,23 +1,61 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useContext, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Button } from '../components/ui/button.jsx';
 import { Input } from '../components/ui/input.jsx';
 import { DatasetStats } from '../components/DatasetStats.jsx';
 import { PendingDatasets } from '../components/PendingDatasets.jsx';
-import  ApprovedDatasets  from '../components/ApprovedDatasets.jsx';
+import ApprovedDatasets from '../components/ApprovedDatasets.jsx';
 import { RejectedDatasets } from '../components/RejectedDatasets.jsx';
 import { UserManagement } from '../components/UserManagement.jsx';
 import { DatasetReviewModal } from '../components/DatasetReviewModal.jsx';
-import { SidebarProvider } from '../components/ui/sidebar.jsx'; // Removed SidebarTrigger import
+import { SidebarProvider } from '../components/ui/sidebar.jsx';
 import { AppSidebar } from '../components/AppSidebar.jsx';
 import { Search, Bell, Settings, User, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from '../api/axios.js';
+import { toast } from 'react-toastify';
 
 const Index = () => {
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [stats, setStats] = useState({
+    totalDatasets: 0,
+    pendingApprovals: 0,
+    totalUsers: 0,
+    revenue: 0
+  });
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Fetch dataset statistics
+        const datasetRes = await axios.get('/dataset/stats');
+        const { statusCounts } = datasetRes.data;
+        
+        // Fetch user statistics
+        const userRes = await axios.get('/user/stats');
+        
+        setStats({
+          totalDatasets: statusCounts.approved + statusCounts.pending + statusCounts.rejected,
+          pendingApprovals: statusCounts.pending,
+          totalUsers: userRes.data.totalUsers,
+          revenue: userRes.data.revenue || 94200 // Fallback to hardcoded value if not available
+        });
+        
+      } catch (error) {
+        console.error('Failed to load statistics:', error);
+        toast.error('Failed to load dashboard statistics');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   const handleDatasetReview = (dataset) => {
     setSelectedDataset(dataset);
@@ -40,7 +78,9 @@ const Index = () => {
                   <CardTitle className="text-sm font-medium opacity-90">Total Datasets</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">1,247</div>
+                  <div className="text-3xl font-bold">
+                    {loading ? 'Loading...' : stats.totalDatasets.toLocaleString()}
+                  </div>
                   <p className="text-xs opacity-80">+12% from last month</p>
                 </CardContent>
               </Card>
@@ -50,7 +90,9 @@ const Index = () => {
                   <CardTitle className="text-sm font-medium opacity-90">Pending Approval</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">12</div>
+                  <div className="text-3xl font-bold">
+                    {loading ? 'Loading...' : stats.pendingApprovals}
+                  </div>
                   <p className="text-xs opacity-80">Requires review</p>
                 </CardContent>
               </Card>
@@ -60,7 +102,9 @@ const Index = () => {
                   <CardTitle className="text-sm font-medium opacity-90">Total Users</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">8,432</div>
+                  <div className="text-3xl font-bold">
+                    {loading ? 'Loading...' : stats.totalUsers.toLocaleString()}
+                  </div>
                   <p className="text-xs opacity-80">+234 this week</p>
                 </CardContent>
               </Card>
@@ -70,7 +114,9 @@ const Index = () => {
                   <CardTitle className="text-sm font-medium opacity-90">Revenue</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">$94.2K</div>
+                  <div className="text-3xl font-bold">
+                    {loading ? 'Loading...' : `$${(stats.revenue / 1000).toFixed(1)}K`}
+                  </div>
                   <p className="text-xs opacity-80">+8% from last month</p>
                 </CardContent>
               </Card>
@@ -97,12 +143,10 @@ const Index = () => {
         <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="flex-1 flex flex-col">
-          {/* Header */}
           <header className="bg-white shadow-sm border-b border-gray-200">
             <div className="px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center gap-4">
-                  {/* Removed SidebarTrigger component */}
                   <h1 className="text-2xl font-bold text-gray-900">OpenDataX Admin</h1>
                 </div>
 
@@ -131,7 +175,6 @@ const Index = () => {
             </div>
           </header>
 
-          {/* Main Content */}
           <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
             {renderContent()}
           </main>

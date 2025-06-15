@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import mongoose from 'mongoose';
-import { getGFSBucket } from '../cloud/mongodbstore.js';
+import { getGFSBucket } from '../cloud_mongo/mongodb_store.js';
 
 const router = express.Router();
 

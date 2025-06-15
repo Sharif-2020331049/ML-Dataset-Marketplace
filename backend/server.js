@@ -1,6 +1,7 @@
 import { app } from "./src/app.js";
 import dotenv from "dotenv";
 import { connectDB } from "./src/config/db.js";
+import { initGridFS } from "./src/cloud_mongo/mongodb_store.js"; // ✅ Missing import added
 
 dotenv.config(
     {

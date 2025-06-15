@@ -455,7 +455,7 @@ const UploadDataset = () => {
                       </div>
 
                       {thumbnail && (
-                        <p className="text-sm text-gray-700 mt-2">
+                        <p className="text-sm text-gray-700 mt-2 pb-4">
                           Selected file: <span className="font-medium">{thumbnail.name}</span>
                         </p>
                       )}

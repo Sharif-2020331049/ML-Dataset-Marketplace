@@ -44,7 +44,7 @@ const Homepage = () => {
   const categoryMeta = {
     Images: {
       icon: <Image className="w-8 h-8" />,
-      description: 'Computer vision datasets for classification, detection, and segmentation',
+      description: 'Computer vision datasets for classification, detection',
       color: 'bg-gradient-to-br from-green-500 to-emerald-600',
     },
     Audio: {
@@ -302,7 +302,7 @@ const Homepage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8">
+              <Button size="lg" variant="outline"  className="border-white text-white hover:bg-white hover:text-blue-600 px-8">
                 Get Started Free
               </Button>
             </Link>

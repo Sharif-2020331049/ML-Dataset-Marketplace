@@ -2,42 +2,76 @@ import { Dataset } from "../models/dataset.model.js";
 import { Purchase } from "../models/purchase.model.js";
 import { User } from "../models/user.model.js";
 
+// const uploadDataset = async (req, res) => {
+//   try {
+//     //   console.log('Received files:', {
+//     //   thumbnail: req.files?.thumbnail?.[0]?.mimetype,
+//     //   originalFiles: req.files?.originalFiles?.map(f => f.mimetype),
+//     //   samplePreview: req.files?.samplePreview?.[0]?.mimetype
+//     // });
+
+//     // Validate required fields first
+//     const requiredFields = ["datasetTitle", "category", "description", "price"];
+//     const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+//     if (missingFields.length > 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Missing required fields: ${missingFields.join(", ")}`,
+//       });
+//     }
+
+//     // Process files only if they exist
+//     const processFile = (file) =>
+//       file
+//         ? {
+//             url: file.path,
+//             public_id: file.filename,
+//           }
+//         : null;
+
+//     const newDataset = new Dataset({
+//       ...req.body,
+//       tags: req.body.tags?.split(",").map((tag) => tag.trim()) || [],
+//       thumbnail: processFile(req.files?.thumbnail?.[0]),
+//       originalFiles: req.files?.originalFiles?.map(processFile) || [],
+//       samplePreview: processFile(req.files?.samplePreview?.[0]),
+//       uploadedBy: req.user?.email,
+//     });
+
+//     await newDataset.save();
+//     res.status(201).json({ success: true, dataset: newDataset });
+//   } catch (err) {
+//     console.error("DATABASE SAVE ERROR:", err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to save dataset",
+//       error: process.env.NODE_ENV === "development" ? err.message : undefined,
+//     });
+//   }
+// };
 const uploadDataset = async (req, res) => {
   try {
-    //   console.log('Received files:', {
-    //   thumbnail: req.files?.thumbnail?.[0]?.mimetype,
-    //   originalFiles: req.files?.originalFiles?.map(f => f.mimetype),
-    //   samplePreview: req.files?.samplePreview?.[0]?.mimetype
-    // });
+    console.log("Files received:", req.files);
+    console.log("Body received:", req.body);
 
-    // Validate required fields first
-    const requiredFields = ["datasetTitle", "category", "description", "price"];
-    const missingFields = requiredFields.filter((field) => !req.body[field]);
+    const { thumbnail, originalFiles, samplePreview } = req.files;
 
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: `Missing required fields: ${missingFields.join(", ")}`,
-      });
+    if (!thumbnail || !originalFiles) {
+      return res.status(400).json({ error: "Missing required files: thumbnail and originalFiles." });
     }
 
-    // Process files only if they exist
-    const processFile = (file) =>
-      file
-        ? {
-            url: file.path,
-            public_id: file.filename,
-          }
-        : null;
+    const thumbnailPath = thumbnail[0].path;
+    const originalFilePaths = originalFiles.map(file => file.path);
+    const previewPaths = samplePreview ? samplePreview.map(file => file.path) : [];
 
-    const newDataset = new Dataset({
-      ...req.body,
-      tags: req.body.tags?.split(",").map((tag) => tag.trim()) || [],
-      thumbnail: processFile(req.files?.thumbnail?.[0]),
-      originalFiles: req.files?.originalFiles?.map(processFile) || [],
-      samplePreview: processFile(req.files?.samplePreview?.[0]),
-      uploadedBy: req.user?.email,
-    });
+    // Further processing here (e.g., save info to DB)
+
+    return res.status(201).json({
+      success: true,
+      thumbnail: thumbnailPath,
+      datasetFiles: originalFilePaths,
+      previews: previewPaths,
 
    const dataset =  await newDataset.save();
 
@@ -51,9 +85,79 @@ const uploadDataset = async (req, res) => {
       success: false,
       message: "Failed to save dataset",
       error: process.env.NODE_ENV === "development" ? err.message : undefined,
+
     });
+
+  } catch (error) {
+    console.error("uploadDataset error:", error);
+    res.status(500).json({ error: "Server error while uploading dataset.", details: error.message });
   }
 };
+
+
+// const uploadDataset = async (req, res) => {
+//   try {
+//     const requiredFields = ["datasetTitle", "category", "description", "price"];
+//     const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+//     if (missingFields.length > 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Missing required fields: ${missingFields.join(", ")}`,
+//       });
+//     }
+
+//     // Validate single .zip file under originalFiles
+//     const archiveFile = req.files?.originalFiles?.[0];
+//     if (!archiveFile) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Missing original .zip archive file",
+//       });
+//     }
+
+//     if (!archiveFile.originalname.toLowerCase().endsWith(".zip")) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Only .zip files are allowed in originalFiles",
+//       });
+//     }
+
+//     // Helper function to process one file
+//     const processFile = (file) =>
+//       file
+//         ? {
+//             url: file.path,
+//             public_id: file.filename,
+//           }
+//         : null;
+
+//     const newDataset = new Dataset({
+//       datasetTitle: req.body.datasetTitle,
+//       category: req.body.category,
+//       license: req.body.license,
+//       description: req.body.description,
+//       tags: req.body.tags
+//         ? req.body.tags.split(",").map((tag) => tag.trim())
+//         : [],
+//       price: req.body.price,
+//       thumbnail: processFile(req.files?.thumbnail?.[0]),
+//       originalFiles: [processFile(archiveFile)],
+//       samplePreview: processFile(req.files?.samplePreview?.[0]),
+//       uploadedBy: req.user?.email,
+//     });
+
+//     await newDataset.save();
+//     res.status(201).json({ success: true, dataset: newDataset });
+//   } catch (err) {
+//     console.error("DATABASE SAVE ERROR:", err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to upload dataset",
+//       error: process.env.NODE_ENV === "development" ? err.message : undefined,
+//     });
+//   }
+// };
 
 // const accessAllDataset = async (req, res) => {
 //   try {

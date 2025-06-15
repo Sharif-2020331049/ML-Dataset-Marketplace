@@ -39,32 +39,62 @@ datasetRouter.post(
   jwtVerify,
   upload.fields([
     { name: "thumbnail", maxCount: 1 },
-    { name: "originalFiles", maxCount: 10 },
-    { name: "samplePreview", maxCount: 10 },
+    { name: "samplePreview", maxCount: 10 }, // no originalFiles here
   ]),
-    handleUploadErrors, 
-  (req, res, next) => {
-    
-    // Check if required files are uploaded
-    if (!req.files?.thumbnail || !req.files?.originalFiles) {
-      console.log({ 
-        error: "Missing required files (thumbnail and originalFiles are required)" 
+  handleUploadErrors,
+  async (req, res) => {
+    try {
+      const { thumbnail, samplePreview } = req.files;
+      const {
+        datasetTitle,
+        category,
+        description,
+        tags,
+        price,
+        license,
+        uploadedBy,
+        originalFileId,  // This is a string from form data
+      } = req.body;
+
+      // Validate required data
+      if (!thumbnail || !originalFileId || !datasetTitle || !category || !description || !tags || !price || !uploadedBy) {
+        return res.status(400).json({ error: "Missing required fields or files." });
+      }
+
+      // Create dataset document
+      const newDataset = new Dataset({
+        datasetTitle,
+        category,
+        description,
+        tags: Array.isArray(tags) ? tags : JSON.parse(tags), // in case tags is sent as JSON string
+        price,
+        license,
+        uploadedBy,
+        originalFileId,
+        thumbnail: {
+          url: thumbnail[0].path,
+          public_id: thumbnail[0].filename || "", // or wherever you store public_id from cloudinary
+        },
+        samplePreview: samplePreview
+          ? {
+              url: samplePreview[0].path,
+              public_id: samplePreview[0].filename || "",
+            }
+          : null,
       });
-    }
-     const { thumbnail, originalFiles, samplePreview } = req.files;  
-    console.log(   
-    {
+
+      await newDataset.save();
+
+      return res.status(201).json({
         success: true,
-        thumbnail: thumbnail[0].path, // Cloudinary URL
-        datasetFiles: originalFiles.map(file => file.path),
-        previews: samplePreview?.map(file => file.path) || [],
+        dataset: newDataset,
       });
-    next();
-  },// This should come after the file processing
-  uploadDataset
+    } catch (error) {
+      console.error("uploadDataset error:", error);
+      res.status(500).json({ error: "Server error while uploading dataset.", details: error.message });
+    }
+  }
 );
-
-
 
 datasetRouter.get("/access", accessAllDataset);
 

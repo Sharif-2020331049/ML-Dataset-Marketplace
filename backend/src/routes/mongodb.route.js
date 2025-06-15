@@ -13,7 +13,6 @@ const fileUploader = multer({ storage: inMemoryStorage });
 router.post('/upload', fileUploader.single('archive'), (req, res) => {
   const zipFile = req.file;
 
-  // Reject if file is missing or is not a .zip
   if (!zipFile || zipFile.mimetype !== 'application/zip') {
     return res.status(400).json({ error: 'Only ZIP files are supported for upload' });
   }
@@ -21,7 +20,6 @@ router.post('/upload', fileUploader.single('archive'), (req, res) => {
   try {
     const gridBucket = getGFSBucket();
 
-    // Initiate upload stream into GridFS
     const streamToGridFS = gridBucket.openUploadStream(zipFile.originalname);
     streamToGridFS.end(zipFile.buffer);
 
@@ -31,6 +29,9 @@ router.post('/upload', fileUploader.single('archive'), (req, res) => {
     });
 
     streamToGridFS.on('finish', () => {
+      // Log the file ID here:
+      console.log('Uploaded file ID:', streamToGridFS.id);
+
       res.status(201).json({
         message: 'Archive successfully stored in GridFS',
         fileId: streamToGridFS.id
@@ -41,6 +42,7 @@ router.post('/upload', fileUploader.single('archive'), (req, res) => {
     res.status(500).json({ error: 'Internal server issue during upload' });
   }
 });
+
 
 // Route to download a ZIP file using its ObjectId
 router.get('/download/:fileId', async (req, res) => {

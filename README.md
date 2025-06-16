@@ -26,7 +26,7 @@ A full-stack web platform that allows users to **buy** and **sell** machine lear
 | Backend       | Node.js, Express.js                            |
 | Database      | MongoDB (Mongoose)                             |
 | Auth          | JWT, bcrypt                                    |
-| File Storage  | Uploadcare (replacing Cloudinary for ZIP)      |
+| File Storage  | MongoDB GridFS(For zip), Cloudinary(Image)      |
 | Dev Tools     | VS Code, GitHub, Postman                       |
 
 ---
@@ -60,18 +60,18 @@ npm install
 # 6. Run the application
 # In three terminals:
 npm run dev     # backend
-npm start       # frontend
-npm start       # admin
+npm run dev     # frontend
+npm run dev     # admin
 ```
 
 ---
 
 ## 🧪 API Endpoints
 
-- `POST /api/auth/register` – Register a user
-- `POST /api/auth/login` – Login and get token
-- `POST /api/datasets/upload` – Upload dataset (ZIP, audio, etc.)
-- `GET /api/datasets` – Get all datasets
+- `POST /api/v1/user/auth/register` – Register a user
+- `POST /api/v1/user/auth/login` – Login and get token
+- `POST /api/v1/dataset/auth/upload` – Upload dataset (ZIP, audio, etc.)
+- `GET /api/v1/dataset` – Get all datasets
 - `GET /api/datasets/:id` – Get specific dataset
 
 ---

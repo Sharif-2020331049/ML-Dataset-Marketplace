@@ -135,15 +135,15 @@ const storage = new CloudinaryStorage({
     };
 
     // RAW FILES (ZIP/CSV/JSON/TAR) - NO PROCESSING
-    if (file.originalname.match(/\.(zip|csv|json|tar)$/i)) {
-      return {
-        ...baseParams,
-        resource_type: 'raw',       // Force as raw file
-        format: '',                 // No format conversion
-        transformation: null,       // Disable all transformations
-        type: 'authenticated'       // Extra control over delivery
-      };
-    }
+    // if (file.originalname.match(/\.(zip|csv|json|tar)$/i)) {
+    //   return {
+    //     ...baseParams,
+    //     resource_type: 'raw',       // Force as raw file
+    //     format: '',                 // No format conversion
+    //     transformation: null,       // Disable all transformations
+    //     type: 'authenticated'       // Extra control over delivery
+    //   };
+    // }
 
     // IMAGES (Thumbnails/Previews)
     if (file.mimetype.startsWith('image/')) {

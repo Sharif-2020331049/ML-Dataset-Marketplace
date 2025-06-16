@@ -1,16 +1,82 @@
 import { Dataset } from "../models/dataset.model.js";
 import { Purchase } from "../models/purchase.model.js";
 import { User } from "../models/user.model.js";
+import axios from "axios";
+import { getGFSBucket } from "../cloud_mongo/mongodb_store.js";
+
+//   try {
+//     console.log("Files received:", req.files);
+//     console.log("Body received:", req.body);
+
+//     res.json({message: checked})
+
+//     // Validate required fields
+//     const requiredFields = ["datasetTitle", "category", "description", "price"];
+//     const missingFields = requiredFields.filter(field => !req.body[field]);
+
+//     if (missingFields.length > 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Missing required fields: ${missingFields.join(", ")}`
+//       });
+//     }
+
+//     // Validate files
+//     const { thumbnail, originalFiles, samplePreview } = req.files;
+
+//     if (!thumbnail || !originalFiles) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "Missing required files: thumbnail and originalFiles."
+//       });
+//     }
+
+//     // Process files
+//     const processFile = (file) => ({
+//       url: file.path,
+//       public_id: file.filename
+//     });
+
+//     // Create new dataset
+//     const newDataset = new Dataset({
+//       ...req.body,
+//       tags: req.body.tags?.split(",").map(tag => tag.trim()) || [],
+//       thumbnail: processFile(thumbnail[0]),
+//       originalFiles: originalFiles.map(processFile),
+//       samplePreview: samplePreview ? samplePreview.map(processFile) : [],
+//       uploadedBy: req.user?.email,
+//       status: 'pending'
+//     });
+
+//     // Save to database
+//     const dataset = await newDataset.save();
+
+//     // Add to user's uploads
+//     const user = await User.findById(req.user?._id);
+//     await user.addUpload(dataset._id);
+
+//     res.status(201).json({
+//       success: true,
+//       dataset: dataset
+//     });
+
+//   } catch (error) {
+//     console.error("uploadDataset error:", error);
+//     res.status(500).json({
+//       success: false,
+//       error: "Server error while uploading dataset.",
+//       message: error.message
+//     });
+//   }
+// };
 
 // const uploadDataset = async (req, res) => {
 //   try {
-//     //   console.log('Received files:', {
-//     //   thumbnail: req.files?.thumbnail?.[0]?.mimetype,
-//     //   originalFiles: req.files?.originalFiles?.map(f => f.mimetype),
-//     //   samplePreview: req.files?.samplePreview?.[0]?.mimetype
-//     // });
+//     // Debugging: Check what's being received
+//     console.log("Files received:", req.files);
+//     console.log("Body received:", req.body);
 
-//     // Validate required fields first
+//     // Validate required fields
 //     const requiredFields = ["datasetTitle", "category", "description", "price"];
 //     const missingFields = requiredFields.filter((field) => !req.body[field]);
 
@@ -21,165 +87,281 @@ import { User } from "../models/user.model.js";
 //       });
 //     }
 
-//     // Process files only if they exist
-//     const processFile = (file) =>
-//       file
-//         ? {
-//             url: file.path,
-//             public_id: file.filename,
-//           }
-//         : null;
+//     // Validate files
+//     if (!req.files) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "No files were uploaded",
+//       });
+//     }
 
+//     const { thumbnail, originalFiles, samplePreview } = req.files;
+
+//     if (!thumbnail || !originalFiles) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "Missing required files: thumbnail and originalFiles.",
+//       });
+//     }
+
+//     // Validate at least one original file is a ZIP
+//     const hasZipFile = originalFiles.some(
+//       (file) =>
+//         file.mimetype === "application/zip" ||
+//         file.mimetype === "application/x-zip-compressed" ||
+//         file.originalname.toLowerCase().endsWith(".zip")
+//     );
+
+//     if (!hasZipFile) {
+//       return res.status(400).json({
+//         success: false,
+//         error: "At least one original file must be a ZIP archive",
+//       });
+//     }
+
+//     // Process files
+//     const processFile = (file) => ({
+//       url: file.path,
+//       public_id: file.filename,
+//       mimetype: file.mimetype,
+//       size: file.size,
+//     });
+
+//     // Create new dataset
 //     const newDataset = new Dataset({
 //       ...req.body,
 //       tags: req.body.tags?.split(",").map((tag) => tag.trim()) || [],
-//       thumbnail: processFile(req.files?.thumbnail?.[0]),
-//       originalFiles: req.files?.originalFiles?.map(processFile) || [],
-//       samplePreview: processFile(req.files?.samplePreview?.[0]),
-//       uploadedBy: req.user?.email,
+//       thumbnail: processFile(thumbnail[0]),
+//       originalFiles: originalFiles.map(processFile),
+//       samplePreview: samplePreview ? samplePreview.map(processFile) : [],
+//       uploadedBy: req.user?._id, // Store user ID instead of email
+//       status: "pending",
 //     });
 
-//     await newDataset.save();
-//     res.status(201).json({ success: true, dataset: newDataset });
-//   } catch (err) {
-//     console.error("DATABASE SAVE ERROR:", err);
+//     // Save to database
+//     const dataset = await newDataset.save();
+
+//     // Add to user's uploads
+//     if (req.user?._id) {
+//       const user = await User.findById(req.user._id);
+//       if (user) {
+//         await user.addUpload(dataset._id);
+//       }
+//     }
+
+//     res.status(201).json({
+//       success: true,
+//       dataset: dataset,
+//     });
+//   } catch (error) {
+//     console.error("uploadDataset error:", error);
 //     res.status(500).json({
 //       success: false,
-//       message: "Failed to save dataset",
-//       error: process.env.NODE_ENV === "development" ? err.message : undefined,
+//       error: "Server error while uploading dataset.",
+//       message: error.message,
 //     });
 //   }
 // };
-const uploadDataset = async (req, res) => {
-  try {
-    console.log("Files received:", req.files);
-    console.log("Body received:", req.body);
-
-    const { thumbnail, originalFiles, samplePreview } = req.files;
-
-    if (!thumbnail || !originalFiles) {
-      return res.status(400).json({ error: "Missing required files: thumbnail and originalFiles." });
-    }
-
-    const thumbnailPath = thumbnail[0].path;
-    const originalFilePaths = originalFiles.map(file => file.path);
-    const previewPaths = samplePreview ? samplePreview.map(file => file.path) : [];
-
-    // Further processing here (e.g., save info to DB)
-
-    return res.status(201).json({
-      success: true,
-      thumbnail: thumbnailPath,
-      datasetFiles: originalFilePaths,
-      previews: previewPaths,
-
-   const dataset =  await newDataset.save();
-
-    const user = await User.findById(req.user?._id);
-    await user.addUpload(dataset?._id);
-
-    res.status(201).json({ success: true, dataset: dataset });
-  } catch (err) {
-    console.error("DATABASE SAVE ERROR:", err);
-    res.status(500).json({
-      success: false,
-      message: "Failed to save dataset",
-      error: process.env.NODE_ENV === "development" ? err.message : undefined,
-
-    });
-
-  } catch (error) {
-    console.error("uploadDataset error:", error);
-    res.status(500).json({ error: "Server error while uploading dataset.", details: error.message });
-  }
-};
-
 
 // const uploadDataset = async (req, res) => {
 //   try {
-//     const requiredFields = ["datasetTitle", "category", "description", "price"];
-//     const missingFields = requiredFields.filter((field) => !req.body[field]);
+//     // Debugging logs
+//     console.log("Authenticated user:", req.user);
+//     console.log("Received files:", req.files);
+//     console.log("Received body:", req.body);
 
-//     if (missingFields.length > 0) {
+//     // Validate required fields
+//     const requiredFields = [
+//       "datasetTitle",
+//       "category",
+//       "description",
+//       "price",
+//       "tags",
+//       "license",
+//     ];
+
+//     // const missingFields = requiredFields.filter((field) => !req.body[field]);
+//     // if (missingFields.length > 0) {
+//     //   return res.status(400).json({
+//     //     success: false,
+//     //     message: `Missing required fields: ${missingFields.join(", ")}`,
+//     //   });
+//     // }
+
+//     // Validate files
+//     if (!req.files) {
 //       return res.status(400).json({
 //         success: false,
-//         message: `Missing required fields: ${missingFields.join(", ")}`,
+//         error: "No files were uploaded",
 //       });
 //     }
 
-//     // Validate single .zip file under originalFiles
-//     const archiveFile = req.files?.originalFiles?.[0];
-//     if (!archiveFile) {
+//       const { thumbnail, samplePreview } = req.files;
+
+//     console.log({ thumbnail, samplePreview });
+//     console.log(req.body.originalFilesId);
+
+//     // Validate required files
+//     if (!thumbnail || !req.body.originalFilesId) {
 //       return res.status(400).json({
 //         success: false,
-//         message: "Missing original .zip archive file",
+//         error: "Missing required files: thumbnail and originalFiles",
 //       });
 //     }
 
-//     if (!archiveFile.originalname.toLowerCase().endsWith(".zip")) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Only .zip files are allowed in originalFiles",
-//       });
-//     }
+//     // Validate ZIP files
+//     // const hasZipFile = originalFiles.some(
+//     //   (file) =>
+//     //     file.mimetype === "application/zip" ||
+//     //     file.mimetype === "application/x-zip-compressed" ||
+//     //     file.originalname.toLowerCase().endsWith(".zip")
+//     // );
 
-//     // Helper function to process one file
-//     const processFile = (file) =>
-//       file
-//         ? {
-//             url: file.path,
-//             public_id: file.filename,
-//           }
-//         : null;
+//     // if (!hasZipFile) {
+//     //   return res.status(400).json({
+//     //     success: false,
+//     //     error: "At least one original file must be a ZIP archive",
+//     //   });
+//     // }
 
+//     // Process files
+//     const processFile = (file) => ({
+//       url: file.path,
+//       public_id: file.filename,
+//       mimetype: file.mimetype,
+//       size: file.size,
+//     });
+
+//     // Create dataset document
 //     const newDataset = new Dataset({
 //       datasetTitle: req.body.datasetTitle,
 //       category: req.body.category,
-//       license: req.body.license,
 //       description: req.body.description,
-//       tags: req.body.tags
-//         ? req.body.tags.split(",").map((tag) => tag.trim())
-//         : [],
 //       price: req.body.price,
-//       thumbnail: processFile(req.files?.thumbnail?.[0]),
-//       originalFiles: [processFile(archiveFile)],
-//       samplePreview: processFile(req.files?.samplePreview?.[0]),
-//       uploadedBy: req.user?.email,
+//       tags: req.body.tags?.split(",").map((tag) => tag.trim()) || [],
+//       license: req.body.license,
+//       thumbnail: processFile(thumbnail[0]),
+//       // originalFiles: originalFiles.map(processFile),
+//       samplePreview: samplePreview?.map(processFile) || [],
+//       uploadedBy: req.user._id, // From JWT middleware
+//       status: "pending",
 //     });
 
-//     await newDataset.save();
-//     res.status(201).json({ success: true, dataset: newDataset });
-//   } catch (err) {
-//     console.error("DATABASE SAVE ERROR:", err);
+//     // Save to database
+//     const savedDataset = await newDataset.save();
+
+//     // Update user's uploads
+//     await User.findByIdAndUpdate(req.user._id, {
+//       $push: { uploads: savedDataset._id },
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       dataset: savedDataset,
+//     });
+//   } catch (error) {
+//     console.error("Upload error:", error);
 //     res.status(500).json({
 //       success: false,
-//       message: "Failed to upload dataset",
-//       error: process.env.NODE_ENV === "development" ? err.message : undefined,
+//       error: "Server error while uploading dataset",
+//       details:
+//         process.env.NODE_ENV === "development" ? error.message : undefined,
 //     });
 //   }
 // };
 
-// const accessAllDataset = async (req, res) => {
-//   try {
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = 6;
-//     const skip = (page - 1) * limit;
+const uploadDataset = async (req, res) => {
+  try {
+    // Debugging logs
+    console.log("Authenticated user:", req.user);
+    console.log("Received files:", req.files);
+    console.log("Received body:", req.body);
 
-//     const [datasets, total] = await Promise.all([
-//       Dataset.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
-//       Dataset.countDocuments(),
-//     ]);
+    // Validate required fields
+    const requiredFields = [
+      "datasetTitle",
+      "category",
+      "description",
+      "price",
+      "tags",
+      "license",
+      "originalFileId", // Added this required field
+    ];
 
-//     res.status(200).json({
-//       success: true,
-//       datasets,
-//       totalPages: Math.ceil(total / limit),
-//       currentPage: page,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: err.message });
-//   }
-// };
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missingFields.join(", ")}`,
+      });
+    }
+
+    // Validate files
+    if (!req.files) {
+      return res.status(400).json({
+        success: false,
+        error: "No files were uploaded",
+      });
+    }
+
+    const { thumbnail, samplePreview } = req.files;
+
+    console.log({ thumbnail, samplePreview });
+    console.log(req.body.originalFileId);
+
+    // Validate required files
+    if (!thumbnail || !req.body.originalFileId) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required files: thumbnail and originalFiles",
+      });
+    }
+
+    // Process files
+    const processFile = (file) => ({
+      url: file.path,
+      public_id: file.filename,
+      mimetype: file.mimetype,
+      size: file.size,
+    });
+
+    // Create dataset document
+    const newDataset = new Dataset({
+      datasetTitle: req.body.datasetTitle,
+      category: req.body.category,
+      description: req.body.description,
+      price: req.body.price,
+      tags: req.body.tags?.split(",").map((tag) => tag.trim()) || [],
+      license: req.body.license,
+      thumbnail: processFile(thumbnail[0]),
+      originalFileId: req.body.originalFileId, // Added this field
+      samplePreview: samplePreview?.map(processFile) || [],
+      uploadedBy: req.user._id, // From JWT middleware
+      status: "pending",
+    });
+
+    // Save to database
+    const savedDataset = await newDataset.save();
+
+    // Update user's uploads
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { uploads: savedDataset._id },
+    });
+
+    res.status(201).json({
+      success: true,
+      dataset: savedDataset,
+    });
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error while uploading dataset",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
 
 const accessAllDataset = async (req, res) => {
   try {
@@ -252,53 +434,76 @@ const deleteDatasetByID = async (req, res) => {
   }
 };
 
-const updateDatasetById = async (req, res) => {};
+const updateDatasetById = async (req, res) => {
+  // Implementation goes here
+};
+
+// const downloadDataset = async (req, res) => {
+//   try {
+//     const dataset = await Dataset.findById(req.params.datasetId);
+
+//     if (!dataset || !dataset.originalFiles[0]?.url) {
+//       return res.status(404).json({ error: "Dataset not found" });
+//     }
+
+//     const cloudinaryUrl = dataset.originalFiles[0].url;
+
+//     // Fetch the file from Cloudinary
+//     const response = await axios.get(cloudinaryUrl, {
+//       responseType: "stream", // Stream the file instead of loading into memory
+//     });
+
+//     // Set proper download headers
+//     res.setHeader(
+//       "Content-Disposition",
+//       `attachment; filename="${dataset.title}"` // Fixed: Added backticks
+//     );
+//     res.setHeader("Content-Type", response.headers["content-type"]);
+
+//     // Pipe the file directly to the client
+//     response.data.pipe(res);
+//   } catch (error) {
+//     console.error("Download error:", error);
+//     res.status(500).json({ error: "Failed to download file" });
+//   }
+// };
 
 const downloadDataset = async (req, res) => {
   try {
-    const dataset = await Dataset.findById(req.params.datasetId);
+    const { datasetId } = req.params;
 
-    if (!dataset || !dataset.originalFiles[0]?.url) {
+    // 1. Find the dataset
+    const dataset = await Dataset.findById(datasetId);
+    if (!dataset || !dataset.originalFileId) {
       return res.status(404).json({ error: "Dataset not found" });
     }
 
-    const cloudinaryUrl = dataset.originalFiles[0].url;
+    // 2. Get GridFS bucket
+    const gfsBucket = getGFSBucket();
 
-    // Fetch the file from Cloudinary
-    const response = await axios.get(cloudinaryUrl, {
-      responseType: "stream", // Stream the file instead of loading into memory
-    });
+    // 3. Find the file in GridFS
+    const files = await gfsBucket
+      .find({ _id: new mongoose.Types.ObjectId(dataset.originalFileId) })
+      .toArray();
+    if (!files || files.length === 0) {
+      return res.status(404).json({ error: "File not found" });
+    }
 
-    // Set proper download headers
-    res.setHeader(
+    // 4. Set proper download headers
+    res.set("Content-Type", files[0].contentType);
+    res.set(
       "Content-Disposition",
-      `attachment; filename="${dataset.title}"`
+      `attachment; filename="${dataset.datasetTitle}.zip"`
     );
-    res.setHeader("Content-Type", response.headers["content-type"]);
 
-    // Pipe the file directly to the client
-    response.data.pipe(res);
+    // 5. Stream the file to the client
+    const downloadStream = gfsBucket.openDownloadStream(files[0]._id);
+    downloadStream.pipe(res);
   } catch (error) {
     console.error("Download error:", error);
     res.status(500).json({ error: "Failed to download file" });
   }
 };
-
-//   if (!purchase) {
-//     return res
-//       .status(403)
-//       .json({
-//         success: false,
-//         message: "You must purchase this dataset first.",
-//       });
-//   }
-
-//   const dataset = await Dataset.findById(datasetId);
-//   res.status(200).json({
-//     success: true,
-//     originalFiles: dataset.originalFiles, // Direct download URLs
-//   });
-// };
 
 const countByCategories = async (req, res) => {
   try {
@@ -320,15 +525,13 @@ const countByCategories = async (req, res) => {
 
     res.status(200).json({ success: true, data: result });
   } catch (err) {
-    // res.status(500).json({ error: 'Failed to fetch category data' });
     res
       .status(500)
       .json({ success: false, message: "Failed to fetch category data" });
   }
 };
 
-// Admin  controller
-
+// Admin controller functions
 const accessPendingData = async (req, res) => {
   try {
     const pendingDatasets = await Dataset.find({ status: "pending" }).sort({
@@ -342,46 +545,28 @@ const accessPendingData = async (req, res) => {
 
 const updateDatasetStatus = async (req, res) => {
   const { id } = req.params;
-  const { status, rejectionReason } = req.body;
+  const { status } = req.body;
 
-  // Validate status
-  if (!["approved", "rejected", "pending"].includes(status)) {
+  if (!["approved", "rejected"].includes(status)) {
     return res.status(400).json({ success: false, message: "Invalid status" });
   }
 
   try {
-    const updateData = { status };
-
-    // Clear rejection reason when status changes to pending/approved
-    if (status === "pending" || status === "approved") {
-      updateData.rejectionReason = null;
-    }
-
-    // Set rejection reason if provided
-    if (status === "rejected" && rejectionReason) {
-      updateData.rejectionReason = rejectionReason;
-    }
-
-    const updatedDataset = await Dataset.findByIdAndUpdate(id, updateData, {
-      new: true,
-    });
+    const updatedDataset = await Dataset.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
 
     if (!updatedDataset) {
-      return res.status(404).json({
-        success: false,
-        message: "Dataset not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Dataset not found" });
     }
 
-    res.status(200).json({
-      success: true,
-      dataset: updatedDataset,
-    });
+    res.status(200).json({ success: true, dataset: updatedDataset });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -444,6 +629,33 @@ const getDatasetStats = async (req, res) => {
   }
 };
 
+// In your dataset controller
+const getDatasetDetails = async (req, res) => {
+  try {
+    const { datasetId } = req.params;
+    
+    // Find dataset and only return necessary fields (for security)
+    const dataset = await Dataset.findById(datasetId)
+      .select('originalFileId')
+      .lean();
+ 
+      console.log(dataset);
+      
+    if (!dataset) {
+      return res.status(404).json({ error: "Dataset not found" });
+    }
+
+    res.json({
+      success: true,
+      originalFileId: dataset.originalFileId,
+    });
+    
+  } catch (error) {
+    console.error("Dataset details error:", error);
+    res.status(500).json({ error: "Failed to get dataset details" });
+  }
+};
+
 export {
   uploadDataset,
   accessAllDataset,
@@ -457,71 +669,5 @@ export {
   getApprovedDatasets,
   getRejectedDatasets,
   getDatasetStats,
-  // deleteFile
+  getDatasetDetails
 };
-
-// const uploadDataset = async (req, res) => {
-//   try {
-//     const { datasetTitle, category, description, tags, price, license } =
-//       req.body;
-
-//     const uploadedBy = req.user?.email;
-//     const thumbnailFile = req.files.thumbnail?.[0];
-
-//     const thumbnail = {
-//       url: thumbnailFile?.path,
-//       public_id: thumbnailFile?.filename,
-//     };
-//     const originalFiles =
-//       req.files.originalFiles?.map((file) => ({
-//         url: file.path,
-//         public_id: file.filename,
-//       })) || [];
-
-//     const sampleFile = req.files.samplePreview?.[0];
-
-//     const samplePreview = {
-//       url: sampleFile?.path,
-//       public_id: sampleFile?.filename,
-//     };
-
-//     // console.log("Sample Preview: ");
-//     // console.log(samplePreview);
-//     // console.log("thumbnail file");
-//     // console.log(thumbnail);
-
-//     const newDataset = new Dataset({
-//       datasetTitle,
-//       category,
-//       license,
-//       description,
-//       tags: tags.split(",").map((tag) => tag.trim()),
-//       price,
-//       thumbnail,
-//       uploadedBy,
-//       originalFiles,
-//       samplePreview,
-//     });
-
-//     await newDataset.save();
-
-//     console.log(newDataset);
-
-//     res.status(201).json({ success: true, dataset: newDataset });
-
-//     // res.json({success: true, message: "It's good till now"})
-//   } catch (err) {
-//     console.error("UPLOAD ERROR:", err);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Server Error", error: err.message });
-//     res
-//       .status(500)
-//       .json({
-//         success: false,
-//         message: "Server Error",
-//         error: err.message,
-//         stack: err.stack,
-//       });
-//   }
-// };

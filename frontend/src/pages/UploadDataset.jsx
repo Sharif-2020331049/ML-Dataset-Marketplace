@@ -27,9 +27,10 @@ const UploadDataset = () => {
   const handlePreviewClick = () => previewInputRef.current?.click();
 
 
+  const { token } = useContext(DataContext); // Get current user
+  const [thumbnail, setThumbnail] = useState(null);
   const [originalFiles, setOriginalFiles] = useState([]);
   const [samplePreview, setSamplePreview] = useState(null);
-  const [thumbnail, setThumbnail] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
@@ -52,7 +53,7 @@ const UploadDataset = () => {
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
-  
+
   //   if (
   //     !formData.datasetTitle ||
   //     !formData.category ||
@@ -64,69 +65,95 @@ const UploadDataset = () => {
   //     toast.error("Please fill in all required fields and upload required files.");
   //     return;
   //   }
-  
+
   //   const token = localStorage.getItem("token");
   //   if (!token) {
   //     toast.error("You have to SignIn first!");
   //     navigate("/login");
   //     return;
   //   }
-  
+
   //   setIsSubmitting(true);
-  
+
   //   try {
   //     // Step 1: Get the uploaded ZIP file
   //     const originalZip = originalFiles[0];
-  
+
+  //     console.log(originalZip);
+
+
   //     if (!originalZip.name.endsWith(".zip")) {
   //       toast.error("Original file must be a .zip archive.");
   //       setIsSubmitting(false);
   //       return;
   //     }
-  
+
   //     const uploadForm = new FormData();
   //     uploadForm.append("archive", originalZip);
-  
+
+  //     // for (const [key, value] of uploadForm.entries()) {
+  //     //   console.log(`${key}:`, value);
+  //     // }
+  //     // console.log(uploadForm);
+  //     console.log('File type:', originalZip.type);
+
   //     const uploadRes = await axios.post("/archive/upload", uploadForm, {
   //       headers: {
   //         "Content-Type": "multipart/form-data",
   //         Authorization: `Bearer ${token}`,
   //       },
   //     });
-  
-  //     const uploadedId = uploadRes.data?.id;
-  //     console.log(uploadedId);//here//
+
+
+
+  //     // Fix here: use fileId instead of id
+  //     const uploadedId = uploadRes.data?.fileId;
+  //     console.log(uploadedId); // Should log the uploaded file ID now
+
   //     if (!uploadedId) {
   //       toast.error("Failed to upload original file.");
   //       setIsSubmitting(false);
   //       return;
   //     }
-  
+
   //     // Step 2: Submit full dataset with originalFileId
   //     const datasetForm = new FormData();
   //     Object.entries(formData).forEach(([key, value]) => {
   //       datasetForm.append(key, value);
   //     });
-  
+
   //     datasetForm.append("thumbnail", thumbnail);
-  
+
   //     if (samplePreview?.length > 0) {
   //       samplePreview.forEach(file => datasetForm.append("samplePreview", file));
   //     }
-  
-  //     datasetForm.append("originalFileId", uploadedId);
-  
+
+  //     // Proper way to log FormData contents
+  //     for (const [key, value] of datasetForm.entries()) {
+  //       if (value instanceof File || value instanceof Blob) {
+  //         console.log(`${key}:`, {
+  //           name: value.name,
+  //           size: value.size,
+  //           type: value.type,
+  //           lastModified: value.lastModified
+  //         });
+  //       } else {
+  //         console.log(`${key}:`, value);
+  //       }
+  //     }
+
+
   //     const datasetRes = await axios.post("/dataset/upload", datasetForm, {
   //       headers: {
   //         "Content-Type": "multipart/form-data",
   //         Authorization: `Bearer ${token}`,
   //       },
   //     });
-  
+
   //     toast.success("Dataset uploaded successfully!");
   //     resetForm();
   //     console.log("Dataset response:", datasetRes.data);
-  
+
   //   } catch (error) {
   //     console.error("Upload failed:", error.response?.data || error.message);
   //     toast.error("Upload failed");
@@ -134,94 +161,7 @@ const UploadDataset = () => {
   //     setIsSubmitting(false);
   //   }
   // };
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    if (
-      !formData.datasetTitle ||
-      !formData.category ||
-      !formData.description ||
-      !formData.price ||
-      !thumbnail ||
-      !originalFiles?.length
-    ) {
-      toast.error("Please fill in all required fields and upload required files.");
-      return;
-    }
-  
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("You have to SignIn first!");
-      navigate("/login");
-      return;
-    }
-  
-    setIsSubmitting(true);
-  
-    try {
-      // Step 1: Get the uploaded ZIP file
-      const originalZip = originalFiles[0];
-  
-      if (!originalZip.name.endsWith(".zip")) {
-        toast.error("Original file must be a .zip archive.");
-        setIsSubmitting(false);
-        return;
-      }
-  
-      const uploadForm = new FormData();
-      uploadForm.append("archive", originalZip);
-  
-      const uploadRes = await axios.post("/archive/upload", uploadForm, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      // Fix here: use fileId instead of id
-      const uploadedId = uploadRes.data?.fileId;
-      console.log(uploadedId); // Should log the uploaded file ID now
-  
-      if (!uploadedId) {
-        toast.error("Failed to upload original file.");
-        setIsSubmitting(false);
-        return;
-      }
-  
-      // Step 2: Submit full dataset with originalFileId
-      const datasetForm = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        datasetForm.append(key, value);
-      });
-  
-      datasetForm.append("thumbnail", thumbnail);
-  
-      if (samplePreview?.length > 0) {
-        samplePreview.forEach(file => datasetForm.append("samplePreview", file));
-      }
-  
-      datasetForm.append("originalFileId", uploadedId);
-  
-      const datasetRes = await axios.post("/dataset/upload", datasetForm, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      toast.success("Dataset uploaded successfully!");
-      resetForm();
-      console.log("Dataset response:", datasetRes.data);
-  
-    } catch (error) {
-      console.error("Upload failed:", error.response?.data || error.message);
-      toast.error("Upload failed");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
+
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
   //   // console.log('Form submitted:', formData, originalFiles, samplePreview, thumbnail);
@@ -255,7 +195,7 @@ const UploadDataset = () => {
   //   // console.log("Thumbnail:", thumbnail);
   //   // console.log("Original files:", originalFiles);
   //   // console.log("Preview files:", samplePreview);
- 
+
   //   // return;
 
   //   try {
@@ -291,7 +231,66 @@ const UploadDataset = () => {
 
 
   // };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
+    try {
+      // 1. First upload ZIP file to get fileId
+      const zipFormData = new FormData();
+      zipFormData.append('archive', originalFiles[0]);
+
+      const zipResponse = await axios.post('/archive/upload', zipFormData, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      const fileId = zipResponse.data.fileId;
+
+      // 2. Create dataset with metadata
+      const datasetForm = new FormData();
+      datasetForm.append('datasetTitle', formData.datasetTitle);
+      datasetForm.append('category', formData.category);
+      datasetForm.append('description', formData.description);
+      datasetForm.append('price', formData.price);
+      datasetForm.append('tags', formData.tags);
+      datasetForm.append('license', formData.license);
+      // datasetForm.append('uploadedBy', user._id); // From auth context
+      datasetForm.append('originalFileId', fileId); // From ZIP upload
+      datasetForm.append('thumbnail', thumbnail);
+
+      if (samplePreview) {
+
+        // OR if samplePreview is an array of files
+        samplePreview.forEach(file => {
+          datasetForm.append('samplePreview', file);
+        });
+      }
+
+      // Debug form data before sending
+      for (let [key, value] of datasetForm.entries()) {
+        console.log(key, value instanceof File ? value.name : value);
+      }
+
+      const response = await axios.post('/dataset/upload', datasetForm, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      toast.success('Dataset uploaded successfully!');
+      resetForm();
+
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error(error.response?.data?.error || 'Upload failed');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">

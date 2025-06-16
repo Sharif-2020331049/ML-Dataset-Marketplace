@@ -150,7 +150,7 @@ const DatasetDetails = () => {
                         <Shield className="w-5 h-5 text-gray-400 mr-3" />
                         <div>
                           <div className="text-sm text-gray-500">Uploaded By</div>
-                          <div className="font-medium">{dataset.uploadedBy}</div>
+                          {/* <div className="font-medium">{dataset.uploadedBy}</div> */}
                         </div>
                       </div>
                       <div className="flex items-center">
@@ -229,7 +229,7 @@ const DatasetDetails = () => {
                   <User className="w-6 h-6 text-gray-500" />
                 </div>
                 <div>
-                  <div className="font-medium text-gray-900">{dataset.uploadedBy}</div>
+                  {/* <div className="font-medium text-gray-900">{dataset.uploadedBy}</div> */}
                 </div>
               </div>
               <Button variant="outline" className="w-full">

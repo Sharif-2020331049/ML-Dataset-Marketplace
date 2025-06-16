@@ -71,6 +71,8 @@ const confirmPayment = async (req, res) => {
   try {
     const { email, address, city, zipCode, datasetId } = req.body;
     const { origin } = req.headers;
+    console.log(datasetId);
+
     const dataset = await Dataset.findById(datasetId);
     if (!dataset) {
       return res.status(404).json({ error: "Dataset not found" });
@@ -106,6 +108,13 @@ const confirmPayment = async (req, res) => {
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/dataset/${datasetId}`,
       customer_email: email,
+    });
+
+    await Purchase.create({
+      userId: req.user._id, // Changed from 'user'
+      datasetId: datasetId, // Changed from 'dataset'
+      amount: dataset.price,
+      paymentId: session.id, // Changed from 'paymentSessionId'
     });
 
     return res.status(200).json({ success: true, session_url: session.url });
@@ -171,10 +180,9 @@ const handlePaymentSuccess = async (req, res) => {
     const { datasetId } = session.metadata;
     const downloadLink = `/api/datasets/download/${datasetId}`; // Use the new endpoint
 
-
     const user = await User.findById(req.user?._id);
     await user.addPurchase(datasetId);
-    
+
     res.json({
       success: true,
       downloadLink, // This now points to your server, not Cloudinary directly

@@ -13,7 +13,7 @@ const fileUploader = multer({ storage: inMemoryStorage });
 router.post('/upload', fileUploader.single('archive'), (req, res) => {
   const zipFile = req.file;
 
-  if (!zipFile || zipFile.mimetype !== 'application/zip') {
+  if (!zipFile || zipFile.mimetype !== 'application/x-zip-compressed') {
     return res.status(400).json({ error: 'Only ZIP files are supported for upload' });
   }
 

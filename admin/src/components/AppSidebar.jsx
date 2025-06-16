@@ -9,7 +9,7 @@ import {
   SidebarHeader,
 } from './ui/sidebar.jsx';
 import { Badge } from './ui/badge.jsx';
-import { LayoutDashboard, FileText, Database, Users } from 'lucide-react';
+import { LayoutDashboard, FileText, Database, Users, UserPlus } from 'lucide-react'; // Added UserPlus
 
 const menuItems = [
   {
@@ -37,6 +37,11 @@ const menuItems = [
     id: 'users',
     title: 'User Management',
     icon: Users,
+  },
+  {
+    id: 'register-admin',
+    title: 'Register Admin',
+    icon: UserPlus, // Using a relevant icon from lucide-react
   },
 ];
 
@@ -88,4 +93,4 @@ const AppSidebar = ({ activeTab, onTabChange }) => {
   );
 };
 
-export {AppSidebar} ;
+export { AppSidebar };

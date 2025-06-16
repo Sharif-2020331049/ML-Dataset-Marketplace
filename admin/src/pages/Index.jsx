@@ -12,6 +12,7 @@ import { SidebarProvider } from '../components/ui/sidebar.jsx';
 import { AppSidebar } from '../components/AppSidebar.jsx';
 import { Search, Bell, Settings, User, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import RegisterForm from '../components/RegisterForm.jsx';
 import axios from '../api/axios.js';
 import { toast } from 'react-toastify';
 
@@ -132,6 +133,8 @@ const Index = () => {
         return <RejectedDatasets onReview={handleDatasetReview} />;
       case 'users':
         return <UserManagement />;
+      case 'register-admin':
+        return <RegisterForm/>;
       default:
         return null;
     }

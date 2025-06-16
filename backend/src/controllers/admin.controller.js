@@ -20,7 +20,7 @@ const generateAccessAndRefreshToken = async (adminId) => {
  */
 const registerAdmin = asyncHandler(async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
-
+  console.log(req.body);
   if (!firstName || !lastName || !email || !password) {
     return res.status(400).json({ success: false, message: "All fields are required" });
   }

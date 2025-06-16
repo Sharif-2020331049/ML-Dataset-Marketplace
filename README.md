@@ -17,6 +17,7 @@ A full-stack web platform that allows users to **buy** and **sell** machine lear
 
 ---
 
+
 ## 🧰 Tech Stack
 
 | Category      | Tech                                           |
@@ -45,17 +46,22 @@ npm install
 cd ../frontend
 npm install
 
-# 4. Set environment variables
+# 4. Install admin panel dependencies
+cd ../admin
+npm install
+
+# 5. Set environment variables
 # Create a `.env` file in /backend and add:
 # MONGO_URI=your_mongodb_url
 # JWT_SECRET=your_secret_key
 # UPLOADCARE_PUBLIC_KEY=your_uploadcare_key
 # UPLOADCARE_SECRET_KEY=your_uploadcare_secret
 
-# 5. Run the application
-# In two terminals:
-npm run dev  # backend
-npm start    # frontend
+# 6. Run the application
+# In three terminals:
+npm run dev     # backend
+npm start       # frontend
+npm start       # admin
 ```
 
 ---
